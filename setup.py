@@ -23,6 +23,7 @@ setuptools.setup(
                           'netCDF4',
                           'pandas',
                           'numpy',
+                          'PyYAML',
                           'git+https://github.com/shadhini/curw_db_adapter.git'],
         zip_safe=False
         )
