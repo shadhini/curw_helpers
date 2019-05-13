@@ -71,7 +71,10 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
 
     flo2d_station = read_csv(flo2d_stations_csv)[1:]
 
-    flo2d_obs_mapping_list = [['flo2d_250_station_id', 'ob_1_id', 'ob_2_id', 'ob_3_id', 'ob_4_id', 'ob_5_id', 'ob_6_id', 'ob_7_id', 'ob_8_id', 'ob_9_id', 'ob_10_id']]
+    flo2d_obs_mapping_list = [['flo2d_250_station_id', 'ob_1_id', 'ob_1_dist', 'ob_2_id', 'ob_2_dist', 'ob_3_id',
+                               'ob_3_dist', 'ob_4_id', 'ob_4_dist', 'ob_5_id', 'ob_5_dist', 'ob_6_id', 'ob_6_dist',
+                               'ob_7_id', 'ob_7_dist', 'ob_8_id', 'ob_8_dist', 'ob_9_id', 'ob_9_dist', 'ob_10_id',
+                               'ob_10_dist']]
 
     for flo2d_index in range(len(flo2d_station)):
 
@@ -85,22 +88,19 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         for obs_index in range(len(obs_stations)):
             lat = float(obs_stations[obs_index][2])
             lng = float(obs_stations[obs_index][3])
-            distance = acos(cos(radians(flo2d_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(flo2d_lng)) + sin(radians(flo2d_lat)) * sin(radians(lat)))
+            distance =6371 * acos(cos(radians(flo2d_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(flo2d_lng)) + sin(radians(flo2d_lat)) * sin(radians(lat)))
 
-            distances[obs_stations[obs_index][0]]=distance
+            distances[obs_stations[obs_index][0]] = distance
 
         sorted_distances = collections.OrderedDict(sorted(distances.items(), key=operator.itemgetter(1))[:10])
 
         for key in sorted_distances.keys():
-            flo2d_obs_mapping.append(key)
+            flo2d_obs_mapping.extend([key, sorted_distances.get(key)])
 
         print(flo2d_obs_mapping)
         flo2d_obs_mapping_list.append(flo2d_obs_mapping)
 
-    create_csv('flo2d_250_obs_mapping.csv', flo2d_obs_mapping_list)
+    create_csv('flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
 
 
-
-
-
-find_nearest_obs_stations_for_flo2d_stations('flo2d_250m_dd.csv','obs_stations.csv')
+find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'obs_stations.csv')
