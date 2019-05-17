@@ -67,9 +67,9 @@ def extract_obs_stations():
 
 def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_stations_csv):
 
-    obs_stations = read_csv(obs_stations_csv)[1:]
+    obs_stations = read_csv(obs_stations_csv)
 
-    flo2d_station = read_csv(flo2d_stations_csv)[1:]
+    flo2d_station = read_csv(flo2d_stations_csv)
 
     flo2d_obs_mapping_list = [['flo2d_250_station_id', 'ob_1_id', 'ob_1_dist', 'ob_2_id', 'ob_2_dist', 'ob_3_id',
                                'ob_3_dist', 'ob_4_id', 'ob_4_dist', 'ob_5_id', 'ob_5_dist', 'ob_6_id', 'ob_6_dist',
@@ -100,7 +100,7 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         print(flo2d_obs_mapping)
         flo2d_obs_mapping_list.append(flo2d_obs_mapping)
 
-    create_csv('flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
+    create_csv('flo2d_250_obs_mapping.csv', flo2d_obs_mapping_list)
 
 
-find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'obs_stations.csv')
+find_nearest_obs_stations_for_flo2d_stations('flo2d_250m_dd.csv', 'obs_stations.csv')

@@ -1,4 +1,4 @@
-use `curw_fcst`;
+use curw_fcst;
 
 CREATE TABLE `variable` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -19,7 +19,9 @@ CREATE TABLE `station` (
   `latitude` double NOT NULL,
   `longitude` double NOT NULL,
   `description` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_station_latitude` (`latitude`),
+  KEY `idx_station_longitude` (`longitude`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `source` (
@@ -39,8 +41,6 @@ CREATE TABLE `run` (
   `source` int(11) NOT NULL,
   `variable` int(11) NOT NULL,
   `unit` int(11) NOT NULL,
-  `fgt` datetime DEFAULT NULL,
-  `scheduled_date` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `station` (`station`),
@@ -54,10 +54,11 @@ CREATE TABLE `run` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `data` (
-    `id` VARCHAR(64) NOT NULL,
-    `time` DATETIME NOT NULL,
-    `value` DECIMAL(8 , 3 ) NOT NULL,
-    PRIMARY KEY (`id` , `time`),
-    CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`)
-        REFERENCES `run` (`id`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+  `id` varchar(64) NOT NULL,
+  `time` datetime NOT NULL,
+  `fgt` datetime NOT NULL,
+  `value` decimal(8,3) NOT NULL,
+  PRIMARY KEY (`id`,`time`,`fgt`),
+  KEY `ix_data_fgt` (`fgt`),
+  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
