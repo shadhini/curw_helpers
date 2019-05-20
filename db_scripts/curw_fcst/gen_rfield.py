@@ -1,43 +1,51 @@
 import traceback
 import pymysql
+from datetime import datetime, timedelta
 
 
-def load_kelani_basin_d03_grids():
+def write_to_file(file_name, data):
+    with open(file_name, 'w') as f:
+        for _string in data:
+            # f.seek(0)
+            f.write(str(_string) + '\n')
+
+        f.close()
+
+
+def gen_rfield_d03_kelani_basin(model, version):
     # Connect to the database
     connection = pymysql.connect(host='35.230.102.148',
             user='root',
             password='cfcwm07',
             db='curw_fcst',
-            cursorclass=pymysql.cursors.Cursor)
+            cursorclass=pymysql.cursors.DictCursor)
+
+    start_time = ''
+    end_time = ''
 
     try:
-        id_set = [['id', 'latitude', 'longitude']]
-        station_names = []
 
-        # Extract Observed station names which gives precipitation (total : 45)
+        # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
-            sql_statement = "select distinct `station` from `run_view` where `type`=%s and `variable`=%s"
-            cursor1.execute(sql_statement, ("Observed", "Precipitation"))
-            results = cursor1.fetchall()
-            for result in results:
-                station_names.append(result.get('station'))
+            cursor1.callproc('get_TS_start_end', (model, version))
+            result = cursor1.fetchone()
+            start_time = result.get('start')
+            end_time = result.get('end')
 
-        # Extract lat lon of observed stations
-        with connection.cursor() as cursor2:
-            sql_statement = "select `id`, `latitude`, `longitude` from `station` where `name` in %s"
-            cursor2.execute(sql_statement, tuple(station_names))
-            results = cursor2.fetchall()
-            obs_station = []
-            for result in results:
-                obs_station.extend([result.get('id'), result.get('latitude'), result.get('longitude')])
-            obs_stations.append(obs_station)
+        # Extract rfields
+        timestamp = start_time
+        while timestamp <= end_time :
+            # rfield = [['latitude', 'longitude', 'rainfall']]
+            rfield = []
+            with connection.cursor() as cursor2:
+                cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, timestamp))
+                results = cursor2.fetchall()
+                for result in results:
+                    rfield.append('{} {} {}'.format(result.get('latitude'), result.get('longitude'), result.get('value')))
 
-        # Write to csv file
-        with open('obs_stations.csv', 'w') as csvFile:
-            writer = csv.writer(csvFile)
-            writer.writerows(obs_stations)
+            write_to_file('/var/www/html/wrf/{}/rfield/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
-        csvFile.close()
+            timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
     except Exception as ex:
         traceback.print_exc()
@@ -45,5 +53,11 @@ def load_kelani_basin_d03_grids():
         connection.close()
 
 
-def gen_rfield_d03_kelani_basin():
-    return
+gen_rfield_d03_kelani_basin("WRF_A", "v3")
+gen_rfield_d03_kelani_basin("WRF_C", "v3")
+gen_rfield_d03_kelani_basin("WRF_E", "v3")
+gen_rfield_d03_kelani_basin("WRF_SE", "v3")
+gen_rfield_d03_kelani_basin("WRF_A", "v4")
+gen_rfield_d03_kelani_basin("WRF_C", "v4")
+gen_rfield_d03_kelani_basin("WRF_E", "v4")
+gen_rfield_d03_kelani_basin("WRF_SE", "v4")
