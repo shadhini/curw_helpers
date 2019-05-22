@@ -41,7 +41,7 @@ def gen_rfield_d03_kelani_basin(model, version):
                 cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, timestamp))
                 results = cursor2.fetchall()
                 for result in results:
-                    rfield.append('{} {} {}'.format(result.get('latitude'), result.get('longitude'), result.get('value')))
+                    rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
             write_to_file('/var/www/html/wrf/{}/rfield/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
