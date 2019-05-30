@@ -115,6 +115,7 @@ def view_netcdf_data(rainc_net_cdf_file_path, rainnc_net_cdf_file_path):
                     #     print ([t.strftime('%Y-%m-%d %H:%M:%S'), float(diff[i-1, y, x])])
                 print(data_list)
 
+
 def view_netcdf_data(rainnc_net_cdf_file_path):
     """
 
@@ -142,7 +143,7 @@ def view_netcdf_data(rainnc_net_cdf_file_path):
         """
         nnc_fid = Dataset(rainnc_net_cdf_file_path, mode='r')
 
-        time_unit_info = nnc_fid.variables['XTIME'].units
+        time_unit_info = nnc_fid.variables['Times'].units
 
         time_unit_info_list = time_unit_info.split(' ')
 
@@ -160,18 +161,21 @@ def view_netcdf_data(rainnc_net_cdf_file_path):
 
         rainnc = nnc_fid.variables['RAINNC'][:, lat_inds[0], lon_inds[0]]
 
-        times = nnc_fid.variables['XTIME'][:]
+        times = nnc_fid.variables['Times'][:]
 
         nnc_fid.close()
 
         width = len(lons)
         height = len(lats)
 
-        for y in range(1):#height # lat
-            for x in range(1): # lon
+        count = 1
+        for y in range(height):#height # lat
+            for x in range(width): # lon
 
+                count += 1
                 lat = float(lats[y])
                 lon = float(lons[x])
+                print(count, lat, lon)
 
                 data_list = []
                 # generate timeseries for each station
@@ -183,10 +187,11 @@ def view_netcdf_data(rainnc_net_cdf_file_path):
                     print([t.strftime('%Y-%m-%d %H:%M:%S'), float(rainnc[i, y, x])])
 
 
-# rainc_id = Dataset("/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/RAINC_2019-05-03_A.nc", mode='r')
-# rainnc_id = Dataset("/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/wrfv4/RAINNC_2019-04-18_A.nc", mode='r')
-
-# print(rainc_id.variables.keys())
+rainc_id = Dataset("/home/shadhini/Downloads/results_wrf0_2019-05-01_18_00_0000_wrf_wrfout_d03_2019-05-01_18_00_00_rf", mode='r')
+# # rainnc_id = Dataset("/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/wrfv4/RAINNC_2019-04-18_A.nc", mode='r')
+#
+print(rainc_id.variables.keys())
+print(rainc_id.variables['Times'])
 # print(rainc_id.variables['RAINC'])
 # # print (rainc_id.variables['RAINC'][:,46,24])
 # print (rainnc_id.variables['RAINNC'][:,146,19])
@@ -194,4 +199,4 @@ def view_netcdf_data(rainnc_net_cdf_file_path):
 # view_netcdf_data("/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/RAINC_2019-05-03_A.nc",
 #         "/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/RAINNC_2019-05-03_A.nc")
 
-view_netcdf_data("/home/shadhini/dev/repos/shadhini/curw_helpers/netcdf_utils/d03_RAINNC_2019-05-20_E.nc")
+# view_netcdf_data("/home/shadhini/Downloads/results_wrf0_2019-05-01_18_00_0000_wrf_wrfout_d03_2019-05-01_18_00_00_rf")
