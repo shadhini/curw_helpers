@@ -87,11 +87,11 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         distances = {}
 
         for obs_index in range(len(obs_stations)):
-            lat = float(obs_stations[obs_index][2])
-            lng = float(obs_stations[obs_index][3])
+            lat = float(obs_stations[obs_index][4])
+            lng = float(obs_stations[obs_index][5])
             distance =6371 * acos(cos(radians(flo2d_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(flo2d_lng)) + sin(radians(flo2d_lat)) * sin(radians(lat)))
 
-            distances[obs_stations[obs_index][0]] = distance
+            distances[obs_stations[obs_index][2]] = distance
 
         sorted_distances = collections.OrderedDict(sorted(distances.items(), key=operator.itemgetter(1))[:10])
 
@@ -101,10 +101,10 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         print(flo2d_obs_mapping)
         flo2d_obs_mapping_list.append(flo2d_obs_mapping)
 
-    create_csv('flo2d_250_obs_mapping.csv', flo2d_obs_mapping_list)
+    create_csv('flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
 
 
-# find_nearest_obs_stations_for_flo2d_stations('flo2d_250m_dd.csv', 'obs_stations.csv')
+find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'active_rainfall_obs_stations.csv')
 
 
 def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
@@ -147,4 +147,4 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
     create_csv('obs_wrf0_stations_mapping.csv', nearest_wrf0_stations_list)
 
 
-find_nearest_wrf0_station('active_rainfall_obs_stations.csv', 'wrf0_stations_curw.csv')
+# find_nearest_wrf0_station('active_rainfall_obs_stations.csv', 'wrf0_stations_curw.csv')
