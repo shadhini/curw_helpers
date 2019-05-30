@@ -147,4 +147,4 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
     create_csv('obs_wrf0_stations_mapping.csv', nearest_wrf0_stations_list)
 
 
-find_nearest_wrf0_station('all_rainfall_obs_stations_curw.csv', 'wrf0_stations_curw.csv')
+find_nearest_wrf0_station('active_rainfall_obs_stations.csv', 'wrf0_stations_curw.csv')

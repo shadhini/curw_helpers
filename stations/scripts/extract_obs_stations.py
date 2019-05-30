@@ -43,7 +43,7 @@ def extract_active_rainfall_obs_stations():
                 sql_statement = " select `name`, `latitude`, `longitude` from `station` where `id`=%s;"
                 cursor3.execute(sql_statement, obs_stations[i + 1][2])
                 result = cursor3.fetchone()
-                obs_stations[i + 1].extend([result.get('latitude'), result.get('longitude')])
+                obs_stations[i + 1].extend([result.get('name'), result.get('latitude'), result.get('longitude')])
 
         # Write to csv file
         create_csv('active_rainfall_obs_stations.csv', obs_stations)
