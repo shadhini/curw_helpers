@@ -2,7 +2,6 @@ import csv
 
 
 def create_csv(file_name, data):
-
     """
     Create new csv file using given data
     :param file_name: <file_path/file_name>.csv
@@ -33,7 +32,6 @@ def append_csv(file_name, row):
 
 
 def read_csv(file_name):
-
     """
     Read csv file
     :param file_name: <file_path/file_name>.csv
@@ -41,7 +39,33 @@ def read_csv(file_name):
     """
 
     with open(file_name, 'r') as f:
-        data=[list(line) for line in csv.reader(f)][1:]
+        data = [list(line) for line in csv.reader(f)][1:]
 
     return data
+
+
+def delete_row(file_name, match_index, match_string):
+    """
+    Delete a row from csv file
+    :param file_name: <file_path/file_name>.
+    :param match_string: value of the field that need to be checked
+    :param match_index: index of the field
+    :return: update an existing csv file
+    """
+
+    with open(file_name, 'r') as f:
+        data = [list(line) for line in csv.reader(f)]
+    f.close()
+
+    update_data = []
+
+    for i in range(len(data)):
+        if data[match_index] != match_string:
+            update_data.append(data[i])
+
+    with open(file_name, 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerows(update_data)
+
+    csvFile.close()
 

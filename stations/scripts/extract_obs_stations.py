@@ -1,7 +1,9 @@
 import pymysql
 from datetime import datetime, timedelta
-from csv_utils import create_csv
+from csv_utils import create_csv, delete_row
 import traceback
+
+KUB_Mean = ['b0e008522be904bcf71e290b3b0096b33c3e24d9b623dcbe7e58e7d1cc82d0db','KUB Obs Mean','100034','KUB Obs',7.111666667,80.14983333]
 
 
 def extract_active_rainfall_obs_stations():
@@ -34,7 +36,7 @@ def extract_active_rainfall_obs_stations():
                     sql_statement = "select 1 from `data` where `id`=%s and `time` > %s;"
                     rows = cursor2.execute(sql_statement, (result.get('hash_id'), start_date))
 
-                    if rows > 0:
+                    if rows > 0 and result.get('station_id') != 100034:  # remove non-active stations and KUB Mean
                         obs_stations.append([result.get('hash_id'), result.get('run_name'), result.get('station_id')])
 
         for i in range(len(obs_stations) - 1):
