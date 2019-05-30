@@ -1,6 +1,7 @@
 import traceback
 import pymysql
 from csv_utils import create_csv, read_csv, delete_row
+from datetime import datetime, timedelta
 
 
 # All Rainfall Obs Stations :: variable=Precipitation, unit=mm|Accumulative, type=Observed
@@ -27,7 +28,7 @@ where `id`=%s and `time` between %s and %s group by
 floor((HOUR(TIMEDIFF(`time`, %s))*60+MINUTE(TIMEDIFF(time, %s))-1)/15);"""
 
 # WRF0 forecast 0-day data ::
-sql4 = "select id from run where variable=1 and unit=1 and type=16 and station=1100455;"
+sql4 = "select * from run where variable=1 and unit=1 and type=16 and station=1103553 source=8;"
 
 
 def extract_rain_obs(connection, stations_dict, start_time, end_time):
@@ -67,38 +68,41 @@ def extract_rain_obs(connection, stations_dict, start_time, end_time):
         connection.close()
 
 
-def extract_wrf0_rain_fcst(connection, station_list, start_time, end_time):
+def extract_wrf0_rain_fcst(connection, station_dict, start_time, end_time, type):
     """
         Extract obs station timeseries (15 min intervals)
         :param connection: connection to curw database
-        :param station_list: list of obs station ids
+        :param station_dict: dictionary with observed station id as keys and mapping wrf0 station id as the value
         :param start_time: start of timeseries
         :param end_time: end time of timeseries
+        :param type: whether 0-d/1-d/2-d forecast
         :return:
         """
 
     forecast_timeseries = {}
-    types = [16, 17, 18]
 
     try:
-        # Extract per 15 min observed timeseries
-        for station in station_list.keys():
+        # Extract per 1 hour wrf0 forecasted timeseries
+        for station in station_dict.keys():
 
-            for type in types:
-                with connection.cursor() as cursor1:
-                    sql_statement = "select max(time) as time, sum(value) as value from data where " \
-                                    "`id`=%s and `time` between %s and %s " \
-                                    "group by date(time), hour(time), floor(minute(addtime(time, `-00:01:00`))/15);"
-                    rows = cursor1.execute(sql_statement, (station_list.get(station), start_time, end_time))
-                    if rows > 0:
-                        results = cursor1.fetchall()
-                        ts = []
-                        for result in results:
-                            ts.append([result.get('time'), result.get('value')])
+            with connection.cursor() as cursor1:
+                sql_statement = "select id from run where variable=1 and unit=1 and type=%d and source=8 and " \
+                                "station=%d;"
+                cursor1.execute(sql_statement, (type, station_dict.get(station)))
+                id = cursor1.fetchone()['id']
 
-                        # obs_timeseries[station] = ts
+            with connection.cursor() as cursor2:
+                sql_statement = "select time, value from data where `id`=%s and `time` between %s and %s;"
+                cursor2.execute(sql_statement, (id, start_time, end_time))
+                results = cursor2.fetchall()
 
-        # return obs_timeseries
+                ts = []
+                for result in results:
+                    ts.append([result.get('time'), result.get('value')])
+
+            forecast_timeseries[station] = ts
+
+        return forecast_timeseries
 
     except Exception as ex:
         traceback.print_exc()
@@ -110,7 +114,19 @@ def extract_active_rainfall_obs_stations():
     return
 
 
-def generate_mike_input(active_obs_stations_file, start_time, end_time):
+def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
+
+    types = [16, 17, 18]
+    now = datetime.now()
+    obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
+    obs_end = now
+    d0_forecast_start = (now - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    d0_forecast_end = (now + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    d1_forecast_start = d0_forecast_end
+    d1_forecast_end = (now + timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
+    d2_forecast_start = d1_forecast_end
+    d2_forecast_end = (now + timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
+
     # Connect to the database
     connection = pymysql.connect(host='104.198.0.87',
             user='root',
@@ -120,22 +136,55 @@ def generate_mike_input(active_obs_stations_file, start_time, end_time):
             cursorclass=pymysql.cursors.DictCursor)
 
     active_obs_stations = read_csv(active_obs_stations_file)
+    obs_wrf0_mapping = read_csv(obs_wrf0_mapping_file)
 
-    stations_dict={}
-
-    for obs_index in range(len(active_obs_stations)):
-        stations_dict[active_obs_stations[obs_index][2]] = active_obs_stations[obs_index][0]
-
-    obs_timeseries = extract_rain_obs(connection=connection, stations_dict=stations_dict,
-            start_time=start_time, end_time=end_time)
+    stations_dict_for_obs={}  # keys: obs station id , value: hash id
 
     for obs_index in range(len(active_obs_stations)):
-        data = [['time', 'value']]
-        station_id = active_obs_stations[obs_index][2]
-        for i in range(len(obs_timeseries[station_id])):
-            data.append(obs_timeseries[station_id][i])
-        create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
-                start_time, end_time), data)
+        stations_dict_for_obs[active_obs_stations[obs_index][2]] = active_obs_stations[obs_index][0]
+
+    obs_timeseries = extract_rain_obs(connection=connection, stations_dict=stations_dict_for_obs,
+            start_time=obs_start, end_time=obs_end)
+
+    stations_dict_for_fcst={}  # keys: obs station id , value: nearest wrf0 station id
+
+    for obs_index in range(len(obs_wrf0_mapping)):
+        stations_dict_for_fcst[obs_wrf0_mapping[obs_index][0]] = obs_wrf0_mapping[obs_index][2]
+
+    d0_wrf0_fcst_timeseries = extract_wrf0_rain_fcst(connection=connection, station_dict=stations_dict_for_fcst,
+            start_time=d0_forecast_start, end_time=d0_forecast_end, type=16)
+
+    d1_wrf0_fcst_timeseries = extract_wrf0_rain_fcst(connection=connection, station_dict=stations_dict_for_fcst,
+            start_time=d1_forecast_start, end_time=d1_forecast_end, type=17)
+
+    d2_wrf0_fcst_timeseries = extract_wrf0_rain_fcst(connection=connection, station_dict=stations_dict_for_fcst,
+            start_time=d2_forecast_start, end_time=d2_forecast_end, type=18)
+
+    # format MIKE input
+    MIKE_INPUT = [['time']]
+
+    ordered_station_ids = []
+    for obs_index in range(len(obs_wrf0_mapping)):
+        MIKE_INPUT[0].append(obs_wrf0_mapping[obs_index][1])
+        ordered_station_ids.append(obs_wrf0_mapping[obs_index][0])
+
+    timestamp = obs_start
+    while timestamp <= d2_forecast_end :
+        MIKE_INPUT.append([timestamp])
+        timestamp = (timestamp + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')
+
+    for column in range(len(ordered_station_ids)):
+        for row in range(len(MIKE_INPUT)-1):
+            obs = obs_timeseries.get(ordered_station_ids[column])
+            d0_wrf0_fcst = d0_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+            d1_wrf1_fcst = d1_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+            d2_wrf2_fcst = d2_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+            data = [['time', 'value']]
+            station_id = active_obs_stations[obs_index][2]
+            for i in range(len(obs_timeseries[station_id])):
+                data.append(obs_timeseries[station_id][i])
+            create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
+                    start_time, end_time), data)
 
 
 def generate_rain_files(active_obs_stations_file, start_time, end_time):
