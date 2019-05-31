@@ -135,6 +135,7 @@ def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row):
                 MIKE_INPUT[current_row].append('')
                 current_row += 1
             else:  # avoid rewriting existing fields
+                current_row += 1
                 continue
     elif (timeseries[1][0] + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')==timeseries[2][0]:  # 15 min periodical series
         for i in range(len(timeseries)):
@@ -145,6 +146,7 @@ def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row):
                 MIKE_INPUT[current_row].append('')
                 current_row += 1
             else:  # avoid rewriting existing fields
+                current_row += 1
                 continue
 
     dict['MIKE_INPUT'] = MIKE_INPUT
@@ -219,30 +221,27 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
         d2_wrf2_fcst = d2_wrf0_fcst_timeseries.get(ordered_station_ids[column])
 
         current_row = 0
-        obs_output_dict = extract_15_min_timeseries(timeseries=obs, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
-        if (obs[1][0] + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S') == obs[2][0]:  # hourly series
-            for i in range(len(obs)):
-                avg = obs[i][1]/4
-                avg_next = obs[i+1][1]/4
-                if MIKE_INPUT[current_row][0] == obs[i][0]:
-                    MIKE_INPUT[current_row].append(avg)
-                    MIKE_INPUT[current_row+1].append(avg_next)
-                    MIKE_INPUT[current_row+2].append(avg_next)
-                    MIKE_INPUT[current_row+3].append(avg_next)
-                    current_row = current_row + 4
-                else:
-                    MIKE_INPUT[current_row].append('')
-                    current_row += 1
-        else:  # 15 min periodical series
-            for i in range(len(obs)):
-                if MIKE_INPUT[current_row][0]==obs[i][0]:
-                    MIKE_INPUT[current_row].append(obs[i][1])
-                    current_row += 1
-                else:
-                    MIKE_INPUT[current_row].append('')
-                    current_row += 1
 
-        for j in range(len(d0_wrf0_fcst)):
+        obs_output_dict = extract_15_min_timeseries(timeseries=obs, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
+
+        MIKE_INPUT = obs_output_dict.get('MIKE_INPUT')
+        current_row = obs_output_dict.get('current_row')
+
+        d0_fcst_output_dict = extract_15_min_timeseries(timeseries=d0_wrf0_fcst, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
+
+        MIKE_INPUT = d0_fcst_output_dict.get('MIKE_INPUT')
+        current_row = d0_fcst_output_dict.get('current_row')
+
+        d1_fcst_output_dict = extract_15_min_timeseries(timeseries=d1_wrf1_fcst, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
+
+        MIKE_INPUT = d1_fcst_output_dict.get('MIKE_INPUT')
+        current_row = d1_fcst_output_dict.get('current_row')
+
+        d2_fcst_output_dict = extract_15_min_timeseries(timeseries=d2_wrf2_fcst, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
+
+        MIKE_INPUT = d2_fcst_output_dict.get('MIKE_INPUT')
+        current_row = d2_fcst_output_dict.get('current_row')
+
 
         data = [['time', 'value']]
         station_id = active_obs_stations[obs_index][2]
