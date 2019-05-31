@@ -242,13 +242,7 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
         MIKE_INPUT = d2_fcst_output_dict.get('MIKE_INPUT')
         current_row = d2_fcst_output_dict.get('current_row')
 
-
-        data = [['time', 'value']]
-        station_id = active_obs_stations[obs_index][2]
-        for i in range(len(obs_timeseries[station_id])):
-            data.append(obs_timeseries[station_id][i])
-        create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
-                start_time, end_time), data)
+    create_csv('mike_kelani_{}_{}'.format(now.strftime('%Y-%m-%d_%H-00-00')), MIKE_INPUT)
 
 
 def generate_rain_files(active_obs_stations_file, start_time, end_time):
