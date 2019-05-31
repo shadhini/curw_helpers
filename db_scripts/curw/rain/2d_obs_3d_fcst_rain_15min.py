@@ -114,12 +114,51 @@ def extract_active_rainfall_obs_stations():
     return
 
 
+def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row):
+
+    dict = {}
+
+    MIKE_INPUT = MIKE_INPUT
+    current_row = current_row
+
+    if (timeseries[1][0] + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')==timeseries[2][0]:  # hourly series
+        for i in range(len(timeseries)):
+            avg = timeseries[i][1] / 4
+            avg_next = timeseries[i + 1][1] / 4
+            if MIKE_INPUT[current_row][0]==timeseries[i][0]:
+                MIKE_INPUT[current_row].append(avg)
+                MIKE_INPUT[current_row + 1].append(avg_next)
+                MIKE_INPUT[current_row + 2].append(avg_next)
+                MIKE_INPUT[current_row + 3].append(avg_next)
+                current_row = current_row + 4
+            elif MIKE_INPUT[current_row][0] < timeseries[i][0]:  # handle missing data with appending ''
+                MIKE_INPUT[current_row].append('')
+                current_row += 1
+            else:  # avoid rewriting existing fields
+                continue
+    elif (timeseries[1][0] + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')==timeseries[2][0]:  # 15 min periodical series
+        for i in range(len(timeseries)):
+            if MIKE_INPUT[current_row][0]==timeseries[i][0]:
+                MIKE_INPUT[current_row].append(timeseries[i][1])
+                current_row += 1
+            elif MIKE_INPUT[current_row][0] < timeseries[i][0]:  # handle missing data with appending ''
+                MIKE_INPUT[current_row].append('')
+                current_row += 1
+            else:  # avoid rewriting existing fields
+                continue
+
+    dict['MIKE_INPUT'] = MIKE_INPUT
+    dict['current_row'] = current_row
+
+    return dict
+
+
 def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
 
     types = [16, 17, 18]
     now = datetime.now()
-    obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
-    obs_end = now
+    obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
+    obs_end = now.strftime('%Y-%m-%d 00:00:00')
     d0_forecast_start = (now - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     d0_forecast_end = (now + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     d1_forecast_start = d0_forecast_end
@@ -174,17 +213,43 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
         timestamp = (timestamp + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')
 
     for column in range(len(ordered_station_ids)):
-        for row in range(len(MIKE_INPUT)-1):
-            obs = obs_timeseries.get(ordered_station_ids[column])
-            d0_wrf0_fcst = d0_wrf0_fcst_timeseries.get(ordered_station_ids[column])
-            d1_wrf1_fcst = d1_wrf0_fcst_timeseries.get(ordered_station_ids[column])
-            d2_wrf2_fcst = d2_wrf0_fcst_timeseries.get(ordered_station_ids[column])
-            data = [['time', 'value']]
-            station_id = active_obs_stations[obs_index][2]
-            for i in range(len(obs_timeseries[station_id])):
-                data.append(obs_timeseries[station_id][i])
-            create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
-                    start_time, end_time), data)
+        obs = obs_timeseries.get(ordered_station_ids[column])
+        d0_wrf0_fcst = d0_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+        d1_wrf1_fcst = d1_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+        d2_wrf2_fcst = d2_wrf0_fcst_timeseries.get(ordered_station_ids[column])
+
+        current_row = 0
+        obs_output_dict = extract_15_min_timeseries(timeseries=obs, MIKE_INPUT=MIKE_INPUT, current_row=current_row)
+        if (obs[1][0] + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S') == obs[2][0]:  # hourly series
+            for i in range(len(obs)):
+                avg = obs[i][1]/4
+                avg_next = obs[i+1][1]/4
+                if MIKE_INPUT[current_row][0] == obs[i][0]:
+                    MIKE_INPUT[current_row].append(avg)
+                    MIKE_INPUT[current_row+1].append(avg_next)
+                    MIKE_INPUT[current_row+2].append(avg_next)
+                    MIKE_INPUT[current_row+3].append(avg_next)
+                    current_row = current_row + 4
+                else:
+                    MIKE_INPUT[current_row].append('')
+                    current_row += 1
+        else:  # 15 min periodical series
+            for i in range(len(obs)):
+                if MIKE_INPUT[current_row][0]==obs[i][0]:
+                    MIKE_INPUT[current_row].append(obs[i][1])
+                    current_row += 1
+                else:
+                    MIKE_INPUT[current_row].append('')
+                    current_row += 1
+
+        for j in range(len(d0_wrf0_fcst)):
+
+        data = [['time', 'value']]
+        station_id = active_obs_stations[obs_index][2]
+        for i in range(len(obs_timeseries[station_id])):
+            data.append(obs_timeseries[station_id][i])
+        create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
+                start_time, end_time), data)
 
 
 def generate_rain_files(active_obs_stations_file, start_time, end_time):
