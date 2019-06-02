@@ -103,9 +103,6 @@ def extract_wrf0_rain_fcst(connection, station_dict, start_time, end_time, type)
 
                 forecast_timeseries[station] = ts
 
-        for key in forecast_timeseries.keys():
-            print(key, "#########", forecast_timeseries.get(key))
-
         return forecast_timeseries
 
     except Exception as ex:
@@ -124,44 +121,37 @@ def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row, index):
 
     MIKE_INPUT = MIKE_INPUT
     current_row = current_row
+    i = 0
 
     if (timeseries[0][0] + timedelta(hours=1))==timeseries[1][0]:  # hourly series
-        print("inside hourly series")
-        for i in range(len(timeseries)-1):
+
+        print("hourly series")
+        while i < len(timeseries):
             if len(MIKE_INPUT[current_row]) == index:  # skip overwriting existing values
-                avg = timeseries[i][1] / 4
-                avg_next = timeseries[i + 1][1] / 4
-                if MIKE_INPUT[current_row][0]==(timeseries[i][0]).strftime('%Y-%m-%d %H:%M:%S'):
-                    MIKE_INPUT[current_row].append(avg)
-                    MIKE_INPUT[current_row + 1].append(avg_next)
-                    MIKE_INPUT[current_row + 2].append(avg_next)
-                    MIKE_INPUT[current_row + 3].append(avg_next)
-                    current_row = current_row + 4
-                else:  # time entry is not matching
+                if (datetime.strptime(MIKE_INPUT[current_row][0], '%Y-%m-%d %H:%M:%S') + timedelta(minutes=59)).strftime('%Y-%m-%d %H:00:00') == (timeseries[i][0]).strftime('%Y-%m-%d %H:00:00'):
+                    MIKE_INPUT[current_row].append(timeseries[i][1] / 4)
+                    current_row += 1
+                # time entry is not matching
+                elif MIKE_INPUT[current_row][0] < (timeseries[i][0]).strftime('%Y-%m-%d %H:%M:%S'):
+                    current_row += 1
+                else:
+                    i += 1
                     continue
             else:
                 current_row +=1
 
-        if len(MIKE_INPUT[current_row])==index:  # skip overwriting existing values
-            avg = timeseries[len(timeseries)-1][1] / 4
-            if MIKE_INPUT[current_row][0]==(timeseries[len(timeseries)-1][0]).strftime('%Y-%m-%d %H:%M:%S'):
-                MIKE_INPUT[current_row].append(avg)
-                current_row += 1
-        else:
-            current_row += 1
-
     elif (timeseries[1][0] + timedelta(minutes=15))==timeseries[2][0]:  # 15 min periodical series
-        print("Inside 15 min series")
+        print("15 min series")
         for i in range(len(timeseries)):
             if len(MIKE_INPUT[current_row])==index:  # skip overwriting existing values
-                print(MIKE_INPUT[current_row][0])
-                print((timeseries[i][0]).strftime('%Y-%m-%d %H:%M:%S'))
                 if MIKE_INPUT[current_row][0]==(timeseries[i][0]).strftime('%Y-%m-%d %H:%M:%S'):
-                    print("Inside case 1")
                     MIKE_INPUT[current_row].append(timeseries[i][1])
                     current_row += 1
-                else:  # time entry is not matching
-                    print('inside case 2')
+                    # time entry is not matching
+                elif MIKE_INPUT[current_row][0] < (timeseries[i][0]).strftime('%Y-%m-%d %H:%M:%S'):
+                    current_row += 1
+                else:
+                    i += 1
                     continue
             else:
                 current_row += 1
@@ -238,14 +228,14 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
             MIKE_INPUT.append([timestamp])
             timestamp = (datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)).strftime('%Y-%m-%d %H:%M:%S')
 
-        # for column in range(len(ordered_station_ids)):
-        for column in range(1):
+        for column in range(len(ordered_station_ids)):
+        # for column in range(1):
+            print ('station : ', ordered_station_ids[column])
             obs = obs_timeseries.get(ordered_station_ids[column])
             d0_wrf0_fcst = d0_wrf0_fcst_timeseries.get(ordered_station_ids[column])
             d1_wrf0_fcst = d1_wrf0_fcst_timeseries.get(ordered_station_ids[column])
             d2_wrf0_fcst = d2_wrf0_fcst_timeseries.get(ordered_station_ids[column])
 
-            print('obs tmeseries: ', obs)
             current_row = 1
 
             print("{} : Add obs timeseries to MIKE INPUT".format(datetime.now()))
@@ -321,7 +311,7 @@ def generate_rain_files(active_obs_stations_file, start_time, end_time):
                 start_time, end_time), data)
 
 
-# generate_rain_files('active_rainfall_obs_stations.csv', "2019-05-22 23:45:00", "2019-05-25 23:30:00")
+# generate_rain_files('all_active_rainfall_obs_stations.csv', "2019-05-22 23:45:00", "2019-05-25 23:30:00")
 
-generate_mike_input('active_rainfall_obs_stations.csv', 'obs_wrf0_stations_mapping.csv')
+generate_mike_input('all_active_rainfall_obs_stations.csv', 'obs_wrf0_stations_mapping.csv')
 

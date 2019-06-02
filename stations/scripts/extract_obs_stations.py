@@ -48,7 +48,7 @@ def extract_active_rainfall_obs_stations():
                 obs_stations[i + 1].extend([result.get('name'), result.get('latitude'), result.get('longitude')])
 
         # Write to csv file
-        create_csv('active_rainfall_obs_stations.csv', obs_stations)
+        create_csv('all_active_rainfall_obs_stations.csv', obs_stations)
 
     except Exception as ex:
         traceback.print_exc()
@@ -56,4 +56,11 @@ def extract_active_rainfall_obs_stations():
         connection.close()
 
 
-extract_active_rainfall_obs_stations()
+# extract_active_rainfall_obs_stations()
+
+
+def extract_curw_obs_rainfall_stations():
+    delete_row('curw_active_rainfall_obs_stations.csv', match_index=1, match_string='Icharm')
+
+
+extract_curw_obs_rainfall_stations()

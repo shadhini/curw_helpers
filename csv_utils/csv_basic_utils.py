@@ -60,7 +60,7 @@ def delete_row(file_name, match_index, match_string):
     update_data = []
 
     for i in range(len(data)):
-        if data[match_index] != match_string:
+        if data[i][match_index] != match_string:
             update_data.append(data[i])
 
     with open(file_name, 'w') as csvFile:

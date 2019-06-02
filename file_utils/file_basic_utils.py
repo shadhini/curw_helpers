@@ -11,7 +11,7 @@ def create_csv_like_txt(file_name, data):
             for i in range(len(_list)-1):
                 #f.seek(0)
                 f.write(str(_list[i]) + ',')
-            f.write(str(_list[len(_list)-1]) )
+            f.write(str(_list[len(_list)-1]))
             f.write('\n')
 
         f.close()

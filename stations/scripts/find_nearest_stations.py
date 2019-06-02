@@ -54,7 +54,7 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
     create_csv('flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
 
 
-find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'active_rainfall_obs_stations.csv')
+# find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'curw_active_rainfall_obs_stations.csv')
 
 
 def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
@@ -97,4 +97,47 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
     create_csv('obs_wrf0_stations_mapping.csv', nearest_wrf0_stations_list)
 
 
-# find_nearest_wrf0_station('active_rainfall_obs_stations.csv', 'wrf0_stations_curw.csv')
+# find_nearest_wrf0_station('curw_active_rainfall_obs_stations.csv', 'wrf0_stations_curw.csv')
+
+def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_csv):
+
+    flo2d_grids = read_csv(flo2d_stations_csv)
+
+    d03_stations = read_csv(d03_stations_csv)
+
+    nearest_d03_stations_list = [['flo2d_grid_id', 'nearest_d03_station_id', 'dist']]
+
+    for origin_index in range(len(flo2d_grids)):
+
+        nearest_d03_station = [flo2d_grids[origin_index][0]]
+
+        origin_lat = float(flo2d_grids[origin_index][2])
+        origin_lng = float(flo2d_grids[origin_index][1])
+
+        distances = {}
+
+        for d03_index in range(len(d03_stations)):
+            lat = float(d03_stations[d03_index][1])
+            lng = float(d03_stations[d03_index][2])
+            distance = 6371 * acos(cos(radians(origin_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat)))
+
+            distances[d03_stations[d03_index][0]] = distance
+
+        sorted_distances = collections.OrderedDict(sorted(distances.items(), key=operator.itemgetter(1))[:10])
+
+        count = 0
+        for key in sorted_distances.keys():
+            if count < 1:
+                nearest_d03_station.extend([key, sorted_distances.get(key)])
+                count += 1
+            else:
+                break
+
+        print(nearest_d03_station)
+        nearest_d03_stations_list.append(nearest_d03_station)
+
+    create_csv('flo2d_150m_d03_stations_mapping.csv', nearest_d03_stations_list)
+
+
+find_nearest_d03_station_for_flo2d_grids('flo2d_150m.csv', 'd03_stations.csv')
+
