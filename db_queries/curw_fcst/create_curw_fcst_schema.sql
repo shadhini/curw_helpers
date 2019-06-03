@@ -16,8 +16,8 @@ CREATE TABLE `unit` (
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
   `name` varchar(45) NOT NULL,
-  `latitude` double NOT NULL,
-  `longitude` double NOT NULL,
+  `latitude` decimal(9,6) NOT NULL,
+  `longitude` decimal(9,6) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_station_latitude` (`latitude`),
@@ -31,6 +31,37 @@ CREATE TABLE `source` (
   `parameters` json DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- CREATE TABLE `run` (
+--   `id` varchar(64) NOT NULL,
+--   `sim_tag` varchar(100) NOT NULL,
+--   `start_date` datetime DEFAULT NULL,
+--   `end_date` datetime DEFAULT NULL,
+--   `station` int(11) NOT NULL,
+--   `source` int(11) NOT NULL,
+--   `variable` int(11) NOT NULL,
+--   `unit` int(11) NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `id` (`id`),
+--   KEY `station` (`station`),
+--   KEY `source` (`source`),
+--   KEY `variable` (`variable`),
+--   KEY `unit` (`unit`),
+--   CONSTRAINT `run_ibfk_1` FOREIGN KEY (`station`) REFERENCES `station` (`id`),
+--   CONSTRAINT `run_ibfk_2` FOREIGN KEY (`source`) REFERENCES `source` (`id`),
+--   CONSTRAINT `run_ibfk_3` FOREIGN KEY (`variable`) REFERENCES `variable` (`id`),
+--   CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- CREATE TABLE `data` (
+--   `id` varchar(64) NOT NULL,
+--   `time` datetime NOT NULL,
+--   `fgt` datetime NOT NULL,
+--   `value` decimal(8,3) NOT NULL,
+--   PRIMARY KEY (`id`,`time`,`fgt`),
+--   KEY `ix_data_fgt` (`fgt`),
+--   CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `run` (
   `id` varchar(64) NOT NULL,
@@ -47,10 +78,10 @@ CREATE TABLE `run` (
   KEY `source` (`source`),
   KEY `variable` (`variable`),
   KEY `unit` (`unit`),
-  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`station`) REFERENCES `station` (`id`),
-  CONSTRAINT `run_ibfk_2` FOREIGN KEY (`source`) REFERENCES `source` (`id`),
-  CONSTRAINT `run_ibfk_3` FOREIGN KEY (`variable`) REFERENCES `variable` (`id`),
-  CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`)
+  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`station`) REFERENCES `station` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `run_ibfk_2` FOREIGN KEY (`source`) REFERENCES `source` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `run_ibfk_3` FOREIGN KEY (`variable`) REFERENCES `variable` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `data` (
@@ -60,5 +91,5 @@ CREATE TABLE `data` (
   `value` decimal(8,3) NOT NULL,
   PRIMARY KEY (`id`,`time`,`fgt`),
   KEY `ix_data_fgt` (`fgt`),
-  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`)
+  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
