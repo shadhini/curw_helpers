@@ -111,10 +111,6 @@ def extract_wrf0_rain_fcst(connection, station_dict, start_time, end_time, type)
     #     connection.close()
 
 
-def extract_active_rainfall_obs_stations():
-    return
-
-
 def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row, index):
 
     dict = {}
