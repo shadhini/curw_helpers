@@ -136,8 +136,8 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
         print(nearest_d03_station)
         nearest_d03_stations_list.append(nearest_d03_station)
 
-    create_csv('flo2d_150m_d03_stations_mapping.csv', nearest_d03_stations_list)
+    create_csv('flo2d_250m_d03_stations_mapping.csv', nearest_d03_stations_list)
 
 
-find_nearest_d03_station_for_flo2d_grids('flo2d_150m.csv', 'd03_stations.csv')
+find_nearest_d03_station_for_flo2d_grids('flo2d_250m_dd.csv', 'd03_stations.csv')
 
