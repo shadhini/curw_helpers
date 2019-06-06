@@ -43,15 +43,19 @@ def extract_rain_ts(connection, id, start_time):
             connection.close()
 
 
-def update_rainfall_obs(flo2d_model):
+# for bulk insertion for a given one grid interpolation method
+def update_rainfall_obs(flo2d_model, method, grid_interpolation):
+
+    """
+    Update rainfall observations for flo2d models
+    :param flo2d_model: flo2d model
+    :param method: value interpolation method
+    :param grid_interpolation: grid interpolation method
+    :return:
+    """
 
     now = datetime.now()
     obs_start = (now - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S')
-    d0_forecast_end = (now + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')
-    d1_forecast_start = d0_forecast_end
-    d1_forecast_end = (now + timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
-    d2_forecast_start = d1_forecast_end
-    d2_forecast_end = (now + timedelta(days=3)).strftime('%Y-%m-%d 00:00:00')
 
     try:
 
@@ -77,13 +81,13 @@ def update_rainfall_obs(flo2d_model):
         for obs_index in range(len(active_obs_stations)):
             stations_dict_for_obs[active_obs_stations[obs_index][2]] = active_obs_stations[obs_index][0]
 
-        flo2d_obs_mapping = get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model=flo2d_model)
+        flo2d_obs_mapping = get_flo2d_to_obs_grid_mappings(pool=pool, grid_interpolation=grid_interpolation, flo2d_model=flo2d_model)
 
         for flo2d_index in range(len(flo2d_grids)):
             meta_data = {
                     'latitude': '%.6f' % flo2d_grids[flo2d_index][2], 'longitude': '%.6f' % flo2d_grids[flo2d_index][1],
-                    'model': flo2d_model, 'method': 'MDPA',
-                    'grid_id': 'MDPA_{}'.format(flo2d_grids[flo2d_index][0])
+                    'model': flo2d_model, 'method': method,
+                    'grid_id': '{}_{}_{}'.format(flo2d_model, flo2d_grids[flo2d_index][0], grid_interpolation)
                     }
 
             tms_id = TS.get_timeseries_by_grid_id(meta_data.get('grid_id'))
@@ -98,21 +102,29 @@ def update_rainfall_obs(flo2d_model):
             if obs_end is not None:
                 obs_start = obs_end
 
-            curw_hash_id = stations_dict_for_obs.get(flo2d_obs_mapping.get(meta_data['grid_id'])[0])
+            obs1_hash_id = stations_dict_for_obs.get(flo2d_obs_mapping.get(meta_data['grid_id'])[0])
+            obs2_hash_id = stations_dict_for_obs.get(flo2d_obs_mapping.get(meta_data['grid_id'])[1])
+            obs3_hash_id = stations_dict_for_obs.get(flo2d_obs_mapping.get(meta_data['grid_id'])[2])
 
-            ts = extract_rain_ts(connection=curw_connection, start_time=obs_start, id=curw_hash_id)
-            obs_timeseries = ts
-            ts2 = extract_rain_ts(connection=curw_connection, start_time=ts[-1][0], id=curw_hash_id)
-            obs_timeseries.extend(ts2[1:])
-            ts3 = extract_rain_ts(connection=curw_connection, start_time=ts2[-1][0], id=curw_hash_id)
-            obs_timeseries.extend(ts3[1:])
+            ts = extract_rain_ts(connection=curw_connection, start_time=obs_start, id=obs1_hash_id)
+            obs_timeseries = ts[1:]
+            ts2 = extract_rain_ts(connection=curw_connection, start_time=ts[-1][0], id=obs2_hash_id)
+            if len(ts2) > 1:
+                obs_timeseries.extend(ts2[1:])
+            ts3 = extract_rain_ts(connection=curw_connection, start_time=ts2[-1][0], id=obs3_hash_id)
+            if len(ts3) > 1:
+                obs_timeseries.extend(ts3[1:])
 
             TS.insert_data(timeseries=obs_timeseries, tms_id=tms_id, upsert=True)
 
+            TS.update_latest_obs(id_=tms_id, obs_end=obs_timeseries[-1][0])
 
     except Exception as e:
         traceback.print_exc()
     finally:
         if curw_connection is not None:
             curw_connection.close()
+
+
+
 
