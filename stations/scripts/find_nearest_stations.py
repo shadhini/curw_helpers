@@ -51,7 +51,7 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         print(flo2d_obs_mapping)
         flo2d_obs_mapping_list.append(flo2d_obs_mapping)
 
-    create_csv('flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
+    create_csv('MDPA_flo2d_30_obs_mapping.csv', flo2d_obs_mapping_list)
 
 
 # find_nearest_obs_stations_for_flo2d_stations('flo2d_30m.csv', 'curw_active_rainfall_obs_stations.csv')
@@ -136,7 +136,7 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
         print(nearest_d03_station)
         nearest_d03_stations_list.append(nearest_d03_station)
 
-    create_csv('flo2d_30_d03_stations_mapping.csv', nearest_d03_stations_list)
+    create_csv('MDPA_flo2d_30_d03_stations_mapping.csv', nearest_d03_stations_list)
 
 
 find_nearest_d03_station_for_flo2d_grids('flo2d_30m.csv', 'd03_stations.csv')
