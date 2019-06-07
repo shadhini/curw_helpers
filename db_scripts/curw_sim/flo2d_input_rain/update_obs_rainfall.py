@@ -156,11 +156,14 @@ def update_rainfall_obs(flo2d_model, method, grid_interpolation):
 method = MethodEnum.getAbbreviation(MethodEnum.MME)
 grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
-print("{} : ####### Insert obs rainfall for FLO2D 250 grids")
+print("{} : ####### Insert obs rainfall for FLO2D 250 grids".format(datetime.now()))
 update_rainfall_obs(flo2d_model=FLO2D_250, method=method, grid_interpolation=grid_interpolation)
 
-print("{} : ####### Insert obs rainfall for FLO2D 150 grids")
+print("{} : ####### Insert obs rainfall for FLO2D 150 grids".format(datetime.now()))
 update_rainfall_obs(flo2d_model=FLO2D_150, method=method, grid_interpolation=grid_interpolation)
 
-print("{} : ####### Insert obs rainfall for FLO2D 30 grids")
+print("{} : ####### Insert obs rainfall for FLO2D 30 grids".format(datetime.now()))
 update_rainfall_obs(flo2d_model=FLO2D_30, method=method, grid_interpolation=grid_interpolation)
+
+print("{} : ####### obs rainfall insertion process finished #######".format(datetime.now()))
+

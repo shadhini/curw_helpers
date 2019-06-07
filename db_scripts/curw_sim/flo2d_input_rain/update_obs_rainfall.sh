@@ -30,7 +30,7 @@ then
 fi
 
 
-# Update grid mappings in curw_sim
+# Update obs data in curw_sim for flo2d grids
 echo "Running update_obs_rainfall.py"
 python update_obs_rainfall.py >> curw_sim_obs.log 2>&1
 
