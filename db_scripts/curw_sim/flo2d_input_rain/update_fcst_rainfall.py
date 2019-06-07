@@ -7,7 +7,7 @@ import json
 from db_adapter.base import get_Pool
 from db_adapter.constants import CURW_SIM_DATABASE, CURW_SIM_PASSWORD, CURW_SIM_USERNAME, CURW_SIM_PORT, CURW_SIM_HOST
 from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, CURW_FCST_HOST
-from db_adapter.curw_sim.grids import get_flo2d_to_obs_grid_mappings, GridInterpolationEnum, \
+from db_adapter.curw_sim.grids import get_flo2d_to_wrf_grid_mappings, GridInterpolationEnum, \
     FLO2D_250, FLO2D_150, FLO2D_30
 from db_adapter.curw_sim.timeseries import Timeseries as Sim_Timeseries, MethodEnum
 from db_adapter.curw_fcst.timeseries import Timeseries as Fcst_Timeseries
@@ -69,12 +69,12 @@ def update_rainfall_fcsts(flo2d_model, method, grid_interpolation):
         curw_fcst_pool = get_Pool(host=CURW_FCST_HOST, user=CURW_FCST_USERNAME, password=CURW_FCST_PASSWORD,
                 port=CURW_FCST_PORT, db=CURW_FCST_DATABASE)
 
-        Fcst_TS = Fcst_Timeseries(pool=curw_fcst_pool)
         Sim_TS = Sim_Timeseries(pool=curw_sim_pool)
+        Fcst_TS = Fcst_Timeseries(pool=curw_fcst_pool)
 
         flo2d_grids = read_csv('{}m.csv'.format(flo2d_model))
 
-        flo2d_wrf_mapping = get_flo2d_to_obs_grid_mappings(pool=curw_sim_pool, grid_interpolation=grid_interpolation, flo2d_model=flo2d_model)
+        flo2d_wrf_mapping = get_flo2d_to_wrf_grid_mappings(pool=curw_sim_pool, grid_interpolation=grid_interpolation, flo2d_model=flo2d_model)
 
         source_id = get_source_id(pool=curw_fcst_pool, model=model, version=version)
 
@@ -95,14 +95,16 @@ def update_rainfall_fcsts(flo2d_model, method, grid_interpolation):
 
             obs_end = Sim_TS.get_obs_end(id_=tms_id)
 
+            fcst_timeseries = []
+
             if obs_end is not None:
                 fcst_timeseries = Fcst_TS.get_latest_timeseries(sim_tag="evening_18hrs",
-                        station_id=str(flo2d_wrf_mapping.get(meta_data['grid_id'])[3]), start=obs_end,
-                        source_id=source_id, variable_id="1", unit_id="1")
+                        station_id=flo2d_wrf_mapping.get(meta_data['grid_id']), start=obs_end,
+                        source_id=source_id, variable_id=1, unit_id=1)
             else:
                 fcst_timeseries = Fcst_TS.get_latest_timeseries(sim_tag="evening_18hrs",
-                        station_id=str(flo2d_wrf_mapping.get(meta_data['grid_id'])[3]),
-                        source_id=source_id, variable_id="1", unit_id="1")
+                        station_id=flo2d_wrf_mapping.get(meta_data['grid_id']),
+                        source_id=source_id, variable_id=1, unit_id=1)
 
             print("{} : Insert timeseries to database".format(datetime.now()))
             Sim_TS.insert_data(timeseries=fcst_timeseries, tms_id=tms_id, upsert=True)
