@@ -5,33 +5,6 @@ from datetime import datetime, timedelta
 from file_utils import create_csv_like_txt
 
 
-# All Rainfall Obs Stations :: variable=Precipitation, unit=mm|Accumulative, type=Observed
-# Output: hashid, run name, stationid, station name, latitude, longitude
-sql1 = "select id from run where station=100046 and variable=1 and unit=1 and type=1;"
-
-sql2 = """SELECT 
-    run_selected.id, run_selected.name, run_selected.station, station.name, station.latitude, station.longitude
-FROM
-    (SELECT 
-        run.id, run.name, run.station
-    FROM
-        run
-    WHERE
-        variable = 1 AND unit = 1 AND type = 1) AS run_selected
-        LEFT JOIN
-    station ON run_selected.station = station.id
-;"""
-
-# Retrieve observed timeseries with per 15 mins cumulative data
-# sql3 = "select max(time) as time, sum(value) as value from data where id="0af5ecec986be44699e267415799b8b349eeb4e4925881a9fad5cf47fa8f3019" and time > "2019-05-27" group by floor((HOUR(TIMEDIFF(time, "2019-05-27 00:00:00"))*60+MINUTE(TIMEDIFF(time, "2019-05-27 00:00:00"))-1)/15);"
-sql3 = """select max(time) as time, sum(value) as value from data 
-where `id`=%s and `time` between %s and %s group by 
-floor((HOUR(TIMEDIFF(`time`, %s))*60+MINUTE(TIMEDIFF(time, %s))-1)/15);"""
-
-# WRF0 forecast 0-day data ::
-sql4 = "select * from run where variable=1 and unit=1 and type=16 and station=1103553 source=8;"
-
-
 def extract_rain_obs(connection, stations_dict, start_time, end_time):
     """
     Extract obs station timeseries (15 min intervals)
@@ -278,36 +251,6 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
     finally:
         connection.close()
 
-
-def generate_rain_files(active_obs_stations_file, start_time, end_time):
-    # Connect to the database
-    connection = pymysql.connect(host='104.198.0.87',
-            user='root',
-            password='cfcwm07',
-            db='curw',
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor)
-
-    active_obs_stations = read_csv(active_obs_stations_file)
-
-    stations_dict={}
-
-    for obs_index in range(len(active_obs_stations)):
-        stations_dict[active_obs_stations[obs_index][2]] = active_obs_stations[obs_index][0]
-
-    obs_timeseries = extract_rain_obs(connection=connection, stations_dict=stations_dict,
-            start_time=start_time, end_time=end_time)
-
-    for obs_index in range(len(active_obs_stations)):
-        data = [['time', 'value']]
-        station_id = active_obs_stations[obs_index][2]
-        for i in range(len(obs_timeseries[station_id])):
-            data.append(obs_timeseries[station_id][i])
-        create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
-                start_time, end_time), data)
-
-
-# generate_rain_files('all_active_rainfall_obs_stations.csv', "2019-05-22 23:45:00", "2019-05-25 23:30:00")
 
 generate_mike_input('all_active_rainfall_obs_stations.csv', 'obs_wrf0_stations_mapping.csv')
 

@@ -1,0 +1,1 @@
+select * from run where variable=1 and unit=1 and type=16 and station=1103553 source=8;
