@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo `date` 
+echo `date`
 
 echo "Changing into ~/curw_sim_utils"
 cd /home/uwcc-admin/curw_sim_utils
@@ -19,7 +19,7 @@ echo "Activating venv python3 virtual environment."
 source venv/bin/activate
 
 # Install dependencies using pip.
-if [ ! -f "curw_sim_grid.log" ]
+if [ ! -f "curw_sim_obs_flo2d_150.log" ]
 then
     echo "Installing PyMySQL"
     pip install PyMySQL
@@ -30,9 +30,9 @@ then
 fi
 
 
-# Update grid mappings in curw_sim
-echo "Running update_grid_maps.py"
-python update_grid_maps.py >> curw_sim_grid.log 2>&1
+# Update obs data in curw_sim for flo2d grids
+echo "Running update_obs_rainfall_flo2d_150.py"
+python update_obs_rainfall_flo2d_150.py >> curw_sim_obs_flo2d_150.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
