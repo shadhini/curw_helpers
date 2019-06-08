@@ -1,8 +1,42 @@
 import traceback
 import pymysql
-from csv_utils import create_csv, read_csv, delete_row
 from datetime import datetime, timedelta
-from file_utils import create_csv_like_txt
+import csv
+
+
+def datetime_utc_to_lk(timestamp_utc, shift_mins=0):
+    return timestamp_utc + timedelta(hours=5, minutes=30 + shift_mins)
+
+
+def create_csv_like_txt(file_name, data):
+    """
+    Create txt file in the format of csv file
+    :param file_name: file_path/file_name
+    :param data: list of lists
+    :return:
+    """
+    with open(file_name, 'w') as f:
+        for _list in data:
+            for i in range(len(_list)-1):
+                #f.seek(0)
+                f.write(str(_list[i]) + ',')
+            f.write(str(_list[len(_list)-1]))
+            f.write('\n')
+
+        f.close()
+
+
+def read_csv(file_name):
+    """
+    Read csv file
+    :param file_name: <file_path/file_name>.csv
+    :return: list of lists which contains each row of the csv file
+    """
+
+    with open(file_name, 'r') as f:
+        data = [list(line) for line in csv.reader(f)][1:]
+
+    return data
 
 
 def extract_rain_obs(connection, stations_dict, start_time, end_time):
@@ -134,7 +168,7 @@ def extract_15_min_timeseries(timeseries, MIKE_INPUT, current_row, index):
 def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
 
     types = [16, 17, 18]
-    now = datetime.now()
+    now = datetime_utc_to_lk(datetime.now())
     obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
     obs_end = now.strftime('%Y-%m-%d %H:%M:%S')
     d0_forecast_start = (now - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S')
@@ -244,12 +278,13 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
                     for j in range((column + 2) - len(MIKE_INPUT[i+1])):
                         MIKE_INPUT[i+1].append('')
 
-        create_csv_like_txt('mike_kelani_{}.txt'.format(now.strftime('%Y-%m-%d_%H-00-00')), MIKE_INPUT)
+        create_csv_like_txt('/mnt/disks/cms-data/cfcwm/data/MIKE/RF/mike_kelani_{}.txt'.format(now.strftime('%Y-%m-%d_%H-00-00')), MIKE_INPUT)
 
     except Exception as e:
-        traceback.print_exc()
+        print(traceback.print_exc())
     finally:
         connection.close()
+        print("Rain file generation process finished.")
 
 
 generate_mike_input('all_active_rainfall_obs_stations.csv', 'obs_wrf0_stations_mapping.csv')

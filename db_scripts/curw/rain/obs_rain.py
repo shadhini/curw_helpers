@@ -64,7 +64,7 @@ def generate_rain_files(active_obs_stations_file, start_time, end_time):
         station_id = active_obs_stations[obs_index][2]
         for i in range(len(obs_timeseries[station_id])):
             data.append(obs_timeseries[station_id][i])
-        create_csv('/mnt/disks/cms-data/cfcwm/data/MIKE/RF/{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
+        create_csv('{}_{}_{}_{}'.format(active_obs_stations[obs_index][3], active_obs_stations[obs_index][1],
                 start_time, end_time), data)
 
 
