@@ -39,7 +39,13 @@ def find_nearest_obs_stations_for_flo2d_stations(flo2d_stations_csv, obs_station
         for obs_index in range(len(obs_stations)):
             lat = float(obs_stations[obs_index][4])
             lng = float(obs_stations[obs_index][5])
-            distance =6371 * acos(cos(radians(flo2d_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(flo2d_lng)) + sin(radians(flo2d_lat)) * sin(radians(lat)))
+
+            intermediate_value = cos(radians(flo2d_lat)) * cos(radians(lat)) * cos(
+                    radians(lng) - radians(flo2d_lng)) + sin(radians(flo2d_lat)) * sin(radians(lat))
+            if intermediate_value < 1:
+                distance = 6371 * acos(intermediate_value)
+            else:
+                distance = 6371 * acos(1)
 
             distances[obs_stations[obs_index][2]] = distance
 
@@ -77,7 +83,13 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
         for wrf0_index in range(len(wrf0_stations)):
             lat = float(wrf0_stations[wrf0_index][2])
             lng = float(wrf0_stations[wrf0_index][1])
-            distance = 6371 * acos(cos(radians(origin_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat)))
+
+            intermediate_value = cos(radians(origin_lat)) * cos(radians(lat)) * cos(
+                    radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat))
+            if intermediate_value < 1:
+                distance = 6371 * acos(intermediate_value)
+            else:
+                distance = 6371 * acos(1)
 
             distances[wrf0_stations[wrf0_index][0]] = distance
 
@@ -119,7 +131,13 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
         for d03_index in range(len(d03_stations)):
             lat = float(d03_stations[d03_index][1])
             lng = float(d03_stations[d03_index][2])
-            distance = 6371 * acos(cos(radians(origin_lat)) * cos(radians(lat)) * cos(radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat)))
+
+            intermediate_value = cos(radians(origin_lat)) * cos(radians(lat)) * cos(
+                    radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat))
+            if intermediate_value < 1:
+                distance = 6371 * acos(intermediate_value)
+            else:
+                distance = 6371 * acos(1)
 
             distances[d03_stations[d03_index][0]] = distance
 
