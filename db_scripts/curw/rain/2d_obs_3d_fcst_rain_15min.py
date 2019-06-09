@@ -171,7 +171,7 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
     now = datetime_utc_to_lk(datetime.now())
     obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
     obs_end = now.strftime('%Y-%m-%d %H:%M:%S')
-    d0_forecast_start = (now - timedelta(hours=12)).strftime('%Y-%m-%d %H:%M:%S')
+    d0_forecast_start = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
     d0_forecast_end = (now + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')
     d1_forecast_start = d0_forecast_end
     d1_forecast_end = (now + timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
@@ -245,33 +245,29 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
             if obs is not None and len(obs) > 0:
                 obs_output_dict = extract_15_min_timeseries(timeseries=obs, MIKE_INPUT=MIKE_INPUT,
                         current_row=current_row, index=column+1)
-
-            MIKE_INPUT = obs_output_dict.get('MIKE_INPUT')
-            current_row = obs_output_dict.get('current_row')
+                MIKE_INPUT = obs_output_dict.get('MIKE_INPUT')
+                current_row = obs_output_dict.get('current_row')
 
             print("{} : Add 0-d forecast timeseries to MIKE INPUT".format(datetime.now()))
             if d0_wrf0_fcst is not None and len(d0_wrf0_fcst) > 0:
                 d0_fcst_output_dict = extract_15_min_timeseries(timeseries=d0_wrf0_fcst, MIKE_INPUT=MIKE_INPUT,
                         current_row=current_row, index=column+1)
-
-            MIKE_INPUT = d0_fcst_output_dict.get('MIKE_INPUT')
-            current_row = d0_fcst_output_dict.get('current_row')
+                MIKE_INPUT = d0_fcst_output_dict.get('MIKE_INPUT')
+                current_row = d0_fcst_output_dict.get('current_row')
 
             print("{} : Add 1-d forecast timeseries to MIKE INPUT".format(datetime.now()))
             if d1_wrf0_fcst is not None and len(d1_wrf0_fcst) > 0:
                 d1_fcst_output_dict = extract_15_min_timeseries(timeseries=d1_wrf0_fcst, MIKE_INPUT=MIKE_INPUT,
                         current_row=current_row, index=column+1)
-
-            MIKE_INPUT = d1_fcst_output_dict.get('MIKE_INPUT')
-            current_row = d1_fcst_output_dict.get('current_row')
+                MIKE_INPUT = d1_fcst_output_dict.get('MIKE_INPUT')
+                current_row = d1_fcst_output_dict.get('current_row')
 
             print("{} : Add 2-d forecast timeseries to MIKE INPUT".format(datetime.now()))
             if d2_wrf0_fcst is not None and len(d2_wrf0_fcst) > 0:
                 d2_fcst_output_dict = extract_15_min_timeseries(timeseries=d2_wrf0_fcst, MIKE_INPUT=MIKE_INPUT,
                         current_row=current_row, index=column+1)
-
-            MIKE_INPUT = d2_fcst_output_dict.get('MIKE_INPUT')
-            current_row = d2_fcst_output_dict.get('current_row')
+                MIKE_INPUT = d2_fcst_output_dict.get('MIKE_INPUT')
+                current_row = d2_fcst_output_dict.get('current_row')
 
             for i in range(len(MIKE_INPUT)-1):
                 if len(MIKE_INPUT[i+1]) < (column + 2):
