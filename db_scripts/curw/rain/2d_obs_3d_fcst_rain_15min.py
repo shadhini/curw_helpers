@@ -248,6 +248,8 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
                 MIKE_INPUT = obs_output_dict.get('MIKE_INPUT')
                 current_row = obs_output_dict.get('current_row')
 
+            current_row = 1
+
             print("{} : Add 0-d forecast timeseries to MIKE INPUT".format(datetime.now()))
             if d0_wrf0_fcst is not None and len(d0_wrf0_fcst) > 0:
                 d0_fcst_output_dict = extract_15_min_timeseries(timeseries=d0_wrf0_fcst, MIKE_INPUT=MIKE_INPUT,
