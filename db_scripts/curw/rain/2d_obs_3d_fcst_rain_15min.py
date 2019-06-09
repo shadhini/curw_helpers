@@ -171,7 +171,7 @@ def generate_mike_input(active_obs_stations_file, obs_wrf0_mapping_file):
     now = datetime_utc_to_lk(datetime.now())
     obs_start = (now - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
     obs_end = now.strftime('%Y-%m-%d %H:%M:%S')
-    d0_forecast_start = (now - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')
+    d0_forecast_start = (now - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
     d0_forecast_end = (now + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')
     d1_forecast_start = d0_forecast_end
     d1_forecast_end = (now + timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
