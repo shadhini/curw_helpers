@@ -16,3 +16,4 @@ FROM
 SELECT * FROM curw.run where name in ('A&T Labs', 'Leecom', 'CUrW IoT') and station in (100063,100056, 100041, 100038, 100039, 100042, 100043, 100037, 100040, 100064, 100046, 100057) and variable=1 and unit=1 and type=1;
 
 -- gives all curw rainfall observation stations
+SELECT * FROM curw.run where variable=1 and unit=1 and type=1;

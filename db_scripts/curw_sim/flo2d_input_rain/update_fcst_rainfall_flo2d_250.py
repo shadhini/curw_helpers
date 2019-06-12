@@ -2,7 +2,8 @@ import traceback
 from datetime import datetime, timedelta
 import json
 
-from db_adapter.curw_sim.grids import GridInterpolationEnum, FLO2D_250
+from db_adapter.curw_sim.constants import FLO2D_250
+from db_adapter.curw_sim.grids import GridInterpolationEnum
 from db_adapter.curw_sim.timeseries import MethodEnum
 from db_adapter.curw_sim.flo2d import update_rainfall_fcsts
 
