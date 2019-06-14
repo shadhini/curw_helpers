@@ -1,6 +1,7 @@
 CREATE DEFINER=`root`@`%` PROCEDURE `getActiveRainfallObsStations`()
 BEGIN
-	SELECT curw.station.id as station_id, curw.station.name as name, 
+	SELECT selected_runs.id as hash_id, selected_runs.name as run_name, 
+		curw.station.id as station_id, curw.station.name as station_name, 
 		curw.station.latitude as latitude,  curw.station.longitude as longitude
     FROM
 		((SELECT id, name, station FROM curw.run 

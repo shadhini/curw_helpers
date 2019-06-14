@@ -12,18 +12,23 @@ try:
 
     grid_interpolation_method = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
-    print(" Add flo2d 250 grid mappings")
-    add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method)
-    print("{} flo2d 250 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method).keys())))
-    print("{} flo2d 250 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method).keys())))
+    # print(" Add flo2d 250 grid mappings")
+    # add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method)
+    # print("{} flo2d 250 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method).keys())))
+    # print("{} flo2d 250 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_250', grid_interpolation=grid_interpolation_method).keys())))
+    #
+    #
+    # print(" Add flo2d 150 grid mappings")
+    # add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method)
+    # print("{} flo2d 150 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method).keys())))
+    # print("{} flo2d 150 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method).keys())))
+    #
+    # print(" Add flo2d 30 grid mappings")
+    # add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method)
+    # print("{} flo2d 30 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method).keys())))
+    # print("{} flo2d 30 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method).keys())))
 
-
-    print(" Add flo2d 150 grid mappings")
-    add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method)
-    print("{} flo2d 150 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method).keys())))
-    print("{} flo2d 150 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_150', grid_interpolation=grid_interpolation_method).keys())))
-
-    print(" Add flo2d 30 grid mappings")
+    print(" Add obs to d03 grid mappings")
     add_flo2d_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method)
     print("{} flo2d 30 grids added".format(len(get_flo2d_to_wrf_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method).keys())))
     print("{} flo2d 30 grids added".format(len(get_flo2d_to_obs_grid_mappings(pool=pool, flo2d_model='flo2d_30', grid_interpolation=grid_interpolation_method).keys())))

@@ -97,11 +97,9 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
 
         count = 0
         for key in sorted_distances.keys():
-            if count < 1:
+            while count < 1:
                 nearest_wrf0_station.extend([key, sorted_distances.get(key)])
                 count += 1
-            else:
-                break
 
         print(nearest_wrf0_station)
         nearest_wrf0_stations_list.append(nearest_wrf0_station)
@@ -145,11 +143,9 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
 
         count = 0
         for key in sorted_distances.keys():
-            if count < 1:
+            while count < 1:
                 nearest_d03_station.extend([key, sorted_distances.get(key)])
                 count += 1
-            else:
-                break
 
         print(nearest_d03_station)
         nearest_d03_stations_list.append(nearest_d03_station)
@@ -157,5 +153,50 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
     create_csv('MDPA_flo2d_30_d03_stations_mapping.csv', nearest_d03_stations_list)
 
 
-find_nearest_d03_station_for_flo2d_grids('flo2d_30m.csv', 'd03_stations.csv')
+# find_nearest_d03_station_for_flo2d_grids('flo2d_30m.csv', 'd03_stations.csv')
 
+def find_nearest_d03_station_for_obs_grids(obs_stations_csv, d03_stations_csv):
+
+    obs_grids = read_csv(obs_stations_csv)
+
+    d03_stations = read_csv(d03_stations_csv)
+
+    nearest_d03_stations_list = [['obs_grid_id', 'd03_1_id', 'd03_1_dist', 'd03_2_id', 'd03_2_dist', 'd03_3_id', 'd03_3_dist']]
+
+    for origin_index in range(len(obs_grids)):
+
+        nearest_d03_station = [obs_grids[origin_index][2]]
+
+        origin_lat = float(obs_grids[origin_index][4])
+        origin_lng = float(obs_grids[origin_index][5])
+
+        distances = {}
+
+        for d03_index in range(len(d03_stations)):
+            lat = float(d03_stations[d03_index][1])
+            lng = float(d03_stations[d03_index][2])
+
+            intermediate_value = cos(radians(origin_lat)) * cos(radians(lat)) * cos(
+                    radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat))
+            if intermediate_value < 1:
+                distance = 6371 * acos(intermediate_value)
+            else:
+                distance = 6371 * acos(1)
+
+            distances[d03_stations[d03_index][0]] = distance
+
+        sorted_distances = collections.OrderedDict(sorted(distances.items(), key=operator.itemgetter(1))[:10])
+
+        count = 0
+        for key in sorted_distances.keys():
+            while count < 3:
+                nearest_d03_station.extend([key, sorted_distances.get(key)])
+                count += 1
+
+        print(nearest_d03_station)
+        nearest_d03_stations_list.append(nearest_d03_station)
+
+    create_csv('MDPA_obs_d03_stations_mapping.csv', nearest_d03_stations_list)
+
+
+find_nearest_d03_station_for_obs_grids('curw_active_rainfall_obs_stations.csv', 'd03_stations.csv')

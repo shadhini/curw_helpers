@@ -9,22 +9,30 @@ CREATE TABLE `grid_map` (
   PRIMARY KEY (`grid_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `grid_map_obs` (
+  `grid_id` varchar(100) NOT NULL,
+  `d03_1` int(11) NOT NULL,
+  `d03_2` int(11) NOT NULL,
+  `d03_3` int(11) NOT NULL,
+  PRIMARY KEY (`grid_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `run` (
   `id` varchar(64) NOT NULL,
   `latitude` decimal(9,6) NOT NULL,
   `longitude` decimal(9,6) NOT NULL,
   `model` varchar(25) NOT NULL,
   `method` varchar(100) NOT NULL,
-  `grid_id` varchar(45) DEFAULT NULL,
+  `grid_id` varchar(100) DEFAULT NULL,
   `obs_end` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `idx_run_grid_id` (`grid_id`),
   KEY `idx_run_latitude` (`latitude`),
   KEY `idx_run_longitude` (`longitude`),
   KEY `idx_run_model` (`model`),
   KEY `idx_run_method` (`method`),
-  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`grid_id`) REFERENCES `grid_map` (`grid_id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_run_1_idx` (`grid_id`),
+  CONSTRAINT `fk_run_1` FOREIGN KEY (`grid_id`) REFERENCES `grid_map` (`grid_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

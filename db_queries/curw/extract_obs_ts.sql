@@ -1,0 +1,1 @@
+SELECT max(time) as time, sum(value) as value FROM curw.data where id="cbf873efcc26f7d83c5a29ceb0b601fde45bb117167ec3b43a017dd5deb7d7c1" and time between "2019-06-09 00:00:00" and "2019-06-14 00:00:00" group by floor((HOUR(TIMEDIFF(time, "2019-06-09 00:00:00"))*60+MINUTE(TIMEDIFF(time, "2019-06-09 00:00:00"))-1)/60);
