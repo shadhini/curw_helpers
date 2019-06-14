@@ -19,7 +19,7 @@ echo "Activating venv python3 virtual environment."
 source venv/bin/activate
 
 # Install dependencies using pip.
-if [ ! -f "curw_sim_fcst_flo2d_30.log" ]
+if [ ! -f "curw_sim_fcst_rainfall.log" ]
 then
     echo "Installing PyMySQL"
     pip install PyMySQL
@@ -31,8 +31,8 @@ fi
 
 
 # Update fcst data in curw_sim for flo2d grids
-echo "Running update_fcst_rainfall_flo2d_30.py"
-python update_fcst_rainfall_flo2d_30.py >> curw_sim_fcst_flo2d_30.log 2>&1
+echo "Running update_fcst_rainfall.py"
+python update_fcst_rainfall.py >> curw_sim_fcst_hechms.log 2>&1
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
