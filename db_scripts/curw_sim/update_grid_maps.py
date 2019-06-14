@@ -1,10 +1,10 @@
 import traceback
-from db_adapter.base import get_Pool
+from db_adapter.base import get_Pool, destroy_Pool
 from db_adapter.curw_sim.grids import add_obs_to_d03_grid_mappings_for_rainfall, get_obs_to_d03_grid_mappings_for_rainfall, \
     get_flo2d_to_wrf_grid_mappings, GridInterpolationEnum
 from db_adapter.constants import CURW_SIM_HOST, CURW_SIM_PORT, CURW_SIM_USERNAME, CURW_SIM_PASSWORD, CURW_SIM_DATABASE
 
-print(" Add flo2d grid mappings")
+print(" Add obs to d03 grid mappings")
 
 try:
 
@@ -32,8 +32,8 @@ try:
     add_obs_to_d03_grid_mappings_for_rainfall(pool=pool, grid_interpolation=grid_interpolation_method)
     print("{} rainfall observed station grids added".format(len(get_obs_to_d03_grid_mappings_for_rainfall(pool=pool, grid_interpolation=grid_interpolation_method).keys())))
 
+    destroy_Pool(pool=pool)
 except Exception as e:
     traceback.print_exc()
 finally:
-    pool.destroy()
     print("Process Finished.")

@@ -22,7 +22,7 @@ CREATE TABLE `run` (
   `latitude` decimal(9,6) NOT NULL,
   `longitude` decimal(9,6) NOT NULL,
   `model` varchar(25) NOT NULL,
-  `method` varchar(100) NOT NULL,
+  `method` varchar(25) NOT NULL,
   `grid_id` varchar(100) DEFAULT NULL,
   `obs_end` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -31,8 +31,7 @@ CREATE TABLE `run` (
   KEY `idx_run_longitude` (`longitude`),
   KEY `idx_run_model` (`model`),
   KEY `idx_run_method` (`method`),
-  KEY `fk_run_1_idx` (`grid_id`),
-  CONSTRAINT `fk_run_1` FOREIGN KEY (`grid_id`) REFERENCES `grid_map` (`grid_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `fk_run_1_idx` (`grid_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
