@@ -33,8 +33,6 @@ def append_to_file(file_name, data):
 
 def prepare_raincell(target_model, interpolation_method, start_time, end_time, time_step_in_minutes):
 
-    print("Preparing Raincell")
-
     # Connect to the database
     connection = pymysql.connect(host='35.230.102.148',
             user='root',
@@ -61,6 +59,9 @@ def prepare_raincell(target_model, interpolation_method, start_time, end_time, t
             start = (timestamp + timedelta(minutes=5)).strftime(DATE_TIME_FORMAT)
             end = (timestamp + timedelta(minutes=time_step_in_minutes)).strftime(DATE_TIME_FORMAT)
             # Extract raincell from db
+            with connection.cursor() as cursor0:
+                cursor0.execute("SET @@session.wait_timeout = 86400")
+
             with connection.cursor() as cursor1:
                 cursor1.callproc('prepare_flo2d_raincell', (target_model, interpolation_method, start, end))
                 # cursor1.callproc('new_procedure', (target_model, interpolation_method, start, end))
@@ -84,7 +85,10 @@ def prepare_raincell(target_model, interpolation_method, start_time, end_time, t
         traceback.print_exc()
     finally:
         connection.close()
+        print("{} raincell generation process completed".format(datetime.now()))
 
 
-print("Start preparing raincell")
-prepare_raincell(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-09 00:00:00", end_time="2019-06-14 00:00:00", time_step_in_minutes=60)
+print("{} start preparing raincell".format(datetime.now()))
+prepare_raincell(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-07 00:00:00", end_time="2019-06-13 00:00:00", time_step_in_minutes=60)
+
+
