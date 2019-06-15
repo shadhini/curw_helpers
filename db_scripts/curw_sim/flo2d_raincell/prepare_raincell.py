@@ -21,11 +21,11 @@ def write_to_file(file_name, data):
 
 def prepare_raincell(target_model, interpolation_method, start_time, end_time, time_step_in_minutes):
     # Connect to the database
-    # connection = pymysql.connect(host='35.230.102.148',
-    #         user='root',
-    #         password='cfcwm07',
-    #         db='curw_sim',
-    #         cursorclass=pymysql.cursors.DictCursor)
+    connection = pymysql.connect(host='35.230.102.148',
+            user='root',
+            password='cfcwm07',
+            db='curw_sim',
+            cursorclass=pymysql.cursors.DictCursor)
 
     end_time = datetime.strptime(end_time, DATE_TIME_FORMAT)
 
