@@ -121,14 +121,13 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
                 for result in results:
                     raincell.append([result.get('cell_id'), result.get('value')])
 
-            raincell.append([timestamp]) ##################################
-
             if START:
                 raincell.insert(0, ["{} {} {} {}".format(5, length, start_time, end_time)])
                 write_to_file('RAINCELL.DAT', raincell)
                 START=False
             else:
                 append_to_file('RAINCELL.DAT', raincell)
+
             print(timestamp)
 
     except Exception as ex:
