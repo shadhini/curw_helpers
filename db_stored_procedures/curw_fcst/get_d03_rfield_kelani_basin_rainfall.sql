@@ -35,5 +35,6 @@ FROM
         LEFT JOIN
     curw_fcst.data ON curw_fcst.run_selcted.run_id = curw_fcst.data.id
         AND curw_fcst.data.fgt = @fgt
-        AND curw_fcst.data.time = time;
+        AND curw_fcst.data.time = time
+ORDER BY curw_fcst.station_selected.latitude , curw_fcst.station_selected.longitude;
 END
