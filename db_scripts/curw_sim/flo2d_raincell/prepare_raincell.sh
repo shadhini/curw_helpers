@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#!/usr/bin/env bash
-
 echo `date`
 
 echo "Changing into ~/flo2d_raincell"
@@ -32,7 +30,7 @@ then
 fi
 
 
-# Update grid mappings in curw_sim
+# Prepare raincell
 echo "Running prepare_raincell.py"
 python prepare_raincell.py >> raincell.log 2>&1
 

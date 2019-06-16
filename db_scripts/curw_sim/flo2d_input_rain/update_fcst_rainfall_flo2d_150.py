@@ -27,15 +27,14 @@ if __name__=="__main__":
         config = json.loads(open('config.json').read())
 
         # source details
-        model = read_attribute_from_config_file('model', config)
-        version = read_attribute_from_config_file('version', config)
+        model_list = read_attribute_from_config_file('model_list', config)
 
         method = MethodEnum.getAbbreviation(MethodEnum.MME)
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
         print("{} : ####### Insert fcst rainfall for FLO2D 150 grids".format(datetime.now()))
         update_rainfall_fcsts(flo2d_model=FLO2D_150, method=method, grid_interpolation=grid_interpolation,
-                model=model, version=version)
+                model_list=model_list)
 
     except Exception as e:
         traceback.print_exc()
