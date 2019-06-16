@@ -12,7 +12,7 @@ def write_to_file(file_name, data):
         f.close()
 
 
-def gen_rfield_d03_kelani_basin(model, version):
+def gen_rfield_d03(model, version):
     # Connect to the database
     connection = pymysql.connect(host='35.230.102.148',
             user='root',
@@ -59,7 +59,7 @@ def gen_rfield_d03_kelani_basin(model, version):
         print("Process finished")
 
 
-gen_rfield_d03_kelani_basin("WRF_A", "v4")
-gen_rfield_d03_kelani_basin("WRF_C", "v4")
-gen_rfield_d03_kelani_basin("WRF_E", "v4")
-gen_rfield_d03_kelani_basin("WRF_SE", "v4")
+gen_rfield_d03("WRF_A", "v4")
+gen_rfield_d03("WRF_C", "v4")
+gen_rfield_d03("WRF_E", "v4")
+gen_rfield_d03("WRF_SE", "v4")
