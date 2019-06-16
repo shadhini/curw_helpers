@@ -10,4 +10,3 @@ sudo rm /var/www/html/wrf/v4/rfield/d03/future/*
 
 echo "Generating rfield files for WRF v4"
 sudo python gen_rfield_d03_wrfv4.py
-#!/usr/bin/env bash
