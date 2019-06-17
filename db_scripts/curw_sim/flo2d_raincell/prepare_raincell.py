@@ -114,9 +114,10 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
 
             raincell = []
 
+
             # Extract raincell from db
             with connection.cursor() as cursor1:
-                cursor1.callproc('flo2d_250_MME_5_min_raincell', timestamp)
+                cursor1.callproc('flo2d_250_MME_5_min_raincell', (timestamp,))
                 results = cursor1.fetchall()
                 for result in results:
                     raincell.append([result.get('cell_id'), result.get('value')])

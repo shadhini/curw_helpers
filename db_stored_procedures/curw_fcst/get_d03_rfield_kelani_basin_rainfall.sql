@@ -8,8 +8,8 @@ SET @sourceID = (SELECT curw_fcst.source.id FROM curw_fcst.source WHERE curw_fcs
 SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID limit 1);
 
 SELECT 
-    curw_fcst.station_selected.latitude,
     curw_fcst.station_selected.longitude,
+    curw_fcst.station_selected.latitude,
     curw_fcst.data.value
 FROM
     (SELECT 
@@ -19,7 +19,8 @@ FROM
     FROM
         curw_fcst.station
     WHERE
-        curw_fcst.station.latitude BETWEEN 6.6 AND 7.4
+        curw_fcst.station.id BETWEEN 1100000 AND 1199999
+            AND curw_fcst.station.latitude BETWEEN 6.6 AND 7.4
             AND curw_fcst.station.longitude BETWEEN 79.6 AND 81.0) AS station_selected
         LEFT JOIN
     (SELECT 
@@ -36,5 +37,5 @@ FROM
     curw_fcst.data ON curw_fcst.run_selcted.run_id = curw_fcst.data.id
         AND curw_fcst.data.fgt = @fgt
         AND curw_fcst.data.time = time
-ORDER BY curw_fcst.station_selected.latitude , curw_fcst.station_selected.longitude;
+ORDER BY curw_fcst.station_selected.longitude , curw_fcst.station_selected.latitude;
 END
