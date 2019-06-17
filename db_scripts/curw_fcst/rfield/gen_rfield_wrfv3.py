@@ -23,6 +23,8 @@ def gen_rfield_d03_kelani_basin(model, version):
     start_time = ''
     end_time = ''
 
+    now = datetime.strptime((datetime.now()+timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d 00:00:00'), '%Y-%m-%d %H:%M:%S')
+
     try:
 
         # Extract timeseries start time and end time
@@ -43,7 +45,12 @@ def gen_rfield_d03_kelani_basin(model, version):
                 for result in results:
                     rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
-            write_to_file('/var/www/html/wrf/{}/rfield/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+            if timestamp < now:
+                write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+            else:
+                write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+
+            #write_to_file('/var/www/html/wrf/{}/rfield/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
             timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
