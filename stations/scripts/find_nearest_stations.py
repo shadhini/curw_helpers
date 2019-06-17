@@ -97,7 +97,7 @@ def find_nearest_wrf0_station(origin_csv, wrf0_stations_csv):
 
         count = 0
         for key in sorted_distances.keys():
-            while count < 1:
+            if count < 1:
                 nearest_wrf0_station.extend([key, sorted_distances.get(key)])
                 count += 1
 
@@ -143,7 +143,7 @@ def find_nearest_d03_station_for_flo2d_grids(flo2d_stations_csv, d03_stations_cs
 
         count = 0
         for key in sorted_distances.keys():
-            while count < 1:
+            if count < 1:
                 nearest_d03_station.extend([key, sorted_distances.get(key)])
                 count += 1
 
@@ -189,7 +189,7 @@ def find_nearest_d03_station_for_obs_grids(obs_stations_csv, d03_stations_csv):
 
         count = 0
         for key in sorted_distances.keys():
-            while count < 3:
+            if count < 3:
                 nearest_d03_station.extend([key, sorted_distances.get(key)])
                 count += 1
 
