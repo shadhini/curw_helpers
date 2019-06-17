@@ -67,7 +67,7 @@ def prepare_raincell(target_model, interpolation_method, start_time, end_time, t
                 # cursor1.callproc('new_procedure', (target_model, interpolation_method, start, end))
                 results = cursor1.fetchall()
                 for result in results:
-                    raincell.append([result.get('cell'), result.get('value')])
+                    raincell.append([result.get('cell'), '%.1f' % result.get('value')])
 
             if START:
                 raincell.insert(0, ["{} {} {} {}".format(time_step_in_minutes, length, start_time, end_time)])
@@ -75,7 +75,6 @@ def prepare_raincell(target_model, interpolation_method, start_time, end_time, t
                 START=False
             else:
                 append_to_file('RAINCELL.DAT', raincell)
-            print([start, end])
 
             timestamp = timestamp + timedelta(minutes=time_step_in_minutes)
 
@@ -120,7 +119,7 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
                 cursor1.callproc('flo2d_250_MME_5_min_raincell', (timestamp,))
                 results = cursor1.fetchall()
                 for result in results:
-                    raincell.append([result.get('cell_id'), result.get('value')])
+                    raincell.append([result.get('cell_id'), '%.1f' % result.get('value')])
 
             if START:
                 raincell.insert(0, ["{} {} {} {}".format(5, length, start_time, end_time)])
@@ -142,4 +141,4 @@ print("{} start preparing raincell".format(datetime.now()))
 # prepare_raincell(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-07 00:00:00",
 #         end_time="2019-06-13 00:00:00", time_step_in_minutes=60)
 
-prepare_flo2d_250_MME_raincell_5_min_step("2019-06-05 00:00:00", "2019-06-10 00:00:00")
+prepare_flo2d_250_MME_raincell_5_min_step("2019-06-13 23:30:00", "2019-06-18 23:30:00")
