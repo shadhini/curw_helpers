@@ -20,17 +20,17 @@ def remove_negative_99999(model):
 
         # remove -99999
         with connection.cursor() as cursor1:
-            sql_statement = "SELECT `id` FROM `run` where `obs_end` like %s and `model`=%s;"
-            cursor1.execute(sql_statement, ("2019-06-14%", model))
+            sql_statement = "SELECT `id`, `obs_end` FROM `run` where `obs_end` < %s and `model`=%s;"
+            cursor1.execute(sql_statement, ("2019-06-17", model))
             results = cursor1.fetchall()
             for result in results:
-                ids.append((result.get('id')))
+                ids.append([result.get('id'), result.get('obs_end')])
 
-        for id in ids:
+        for list in ids:
             with connection.cursor() as cursor2:
                 sql_statement = "UPDATE `data` SET `value`=0 WHERE `id`=%s and `value`=-99999 and `time`>%s;"
-                cursor2.execute(sql_statement, (id, "2019-06-14%"))
-                print(id)
+                cursor2.execute(sql_statement, (list[0], list[1]))
+                print(list[0])
 
             connection.commit()
 

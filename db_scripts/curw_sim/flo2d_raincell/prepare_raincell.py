@@ -137,8 +137,61 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
         print("{} raincell generation process completed".format(datetime.now()))
 
 
+def prepare_raincell_5_min_step(target_model, interpolation_method, start_time, end_time):
+
+    # Connect to the database
+    connection = pymysql.connect(host='35.230.102.148',
+            user='root',
+            password='cfcwm07',
+            db='curw_sim',
+            cursorclass=pymysql.cursors.DictCursor)
+
+    print("Connected to database")
+
+    end_time = datetime.strptime(end_time, DATE_TIME_FORMAT)
+    start_time = datetime.strptime(start_time, DATE_TIME_FORMAT)
+
+    length = int(((end_time-start_time).total_seconds()/60)/5)
+
+    START = True
+
+    try:
+
+        # Extract raincells
+        timestamp = start_time
+        while timestamp < end_time:
+
+            timestamp = timestamp + timedelta(minutes=5)
+
+            raincell = []
+
+            # Extract raincell from db
+            with connection.cursor() as cursor1:
+                cursor1.callproc('`prepare_flo2d_5_min_raincell`', (target_model, interpolation_method, timestamp))
+                results = cursor1.fetchall()
+                for result in results:
+                    raincell.append([result.get('cell_id'), '%.1f' % result.get('value')])
+
+            if START:
+                raincell.insert(0, ["{} {} {} {}".format(5, length, start_time, end_time)])
+                write_to_file('RAINCELL.DAT', raincell)
+                START=False
+            else:
+                append_to_file('RAINCELL.DAT', raincell)
+
+            print(timestamp)
+
+    except Exception as ex:
+        traceback.print_exc()
+    finally:
+        connection.close()
+        print("{} raincell generation process completed".format(datetime.now()))
+
+
 print("{} start preparing raincell".format(datetime.now()))
 # prepare_raincell(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-07 00:00:00",
 #         end_time="2019-06-13 00:00:00", time_step_in_minutes=60)
 
-prepare_flo2d_250_MME_raincell_5_min_step("2019-06-13 23:30:00", "2019-06-18 23:30:00")
+# prepare_flo2d_250_MME_raincell_5_min_step("2019-06-13 23:30:00", "2019-06-18 23:30:00")
+
+prepare_raincell_5_min_step(target_model="flo2d_150", interpolation_method="MME", start_time="2019-06-13 23:30:00", end_time="2019-06-18 23:30:00")
