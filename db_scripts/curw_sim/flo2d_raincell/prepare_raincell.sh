@@ -23,6 +23,8 @@ if [ ! -f "raincell.log" ]
 then
     echo "Installing PyMySQL"
     pip install PyMySQL
+    echo "Installing numpy"
+    pip install numpy
 #    echo "Installing PyYAML"
 #    pip install PyYAML
 #    echo "Installing db adapter"
