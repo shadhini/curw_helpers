@@ -1,0 +1,13 @@
+{
+  "wrf_dir": "/mnt/disks/wrf-mod",
+  "model": "WRF",
+  "version": "v4",
+  "wrf_model_list": "SE",
+
+  "start_date": "",
+
+  "rfield_host": "104.198.0.87",
+  "rfield_user": "uwcc-admin",
+  "rfield_key": "/home/uwcc-admin/.ssh/uwcc-admin",
+  "rfield_command1": "sudo rm -r /var/www/html/wrf/v4/rfield/d01"
+}

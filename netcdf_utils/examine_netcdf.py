@@ -80,7 +80,7 @@ def view_netcdf_data(rainc_net_cdf_file_path, rainnc_net_cdf_file_path):
 
         # times = list(set(nc_fid.variables['XTIME'][:]))  # set is used to remove duplicates
         times = nc_fid.variables['XTIME'][:]
-        print(   sorted(set(times))[-2])
+        print(sorted(set(times))[-2])
 
         prcp = rainc + rainnc
 

@@ -167,7 +167,7 @@ def prepare_raincell_5_min_step(target_model, interpolation_method, start_time, 
 
             # Extract raincell from db
             with connection.cursor() as cursor1:
-                cursor1.callproc('`prepare_flo2d_5_min_raincell`', (target_model, interpolation_method, timestamp))
+                cursor1.callproc('prepare_flo2d_5_min_raincell', (target_model, interpolation_method, timestamp))
                 results = cursor1.fetchall()
                 for result in results:
                     raincell.append([result.get('cell_id'), '%.1f' % result.get('value')])
@@ -192,6 +192,6 @@ print("{} start preparing raincell".format(datetime.now()))
 # prepare_raincell(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-07 00:00:00",
 #         end_time="2019-06-13 00:00:00", time_step_in_minutes=60)
 
-# prepare_flo2d_250_MME_raincell_5_min_step("2019-06-13 23:30:00", "2019-06-18 23:30:00")
+prepare_flo2d_250_MME_raincell_5_min_step("2019-06-15 23:30:00", "2019-06-20 23:30:00")
 
-prepare_raincell_5_min_step(target_model="flo2d_150", interpolation_method="MME", start_time="2019-06-13 23:30:00", end_time="2019-06-18 23:30:00")
+# prepare_raincell_5_min_step(target_model="flo2d_150", interpolation_method="MME", start_time="2019-06-13 23:30:00", end_time="2019-06-18 23:30:00")
