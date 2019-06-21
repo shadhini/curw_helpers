@@ -111,7 +111,7 @@ def create_dir_if_not_exists(path):
 
 def usage():
     usageText = """
-    Usage: ./prepare_raincell.py [-m flo2d_XXX][-s YYYY-MM-DD HH:MM:SS] [-e YYYY-MM-DD HH:MM:SS]
+    Usage: ./gen_raincell.py [-m flo2d_XXX][-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
     
     -h  --help          Show usage
     -m  --model         FLO2D model (e.g. flo2d_250, flo2d_150). Default is flo2d_250.
@@ -123,53 +123,60 @@ def usage():
 
 if __name__=="__main__":
 
-    start_time = None
-    end_time = None
-    flo2d_model = None
-
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:m:s:e:",
-                ["help", "flo2d_model=", "start_time=", "end_time="])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
+        start_time = None
+        end_time = None
+        flo2d_model = None
+
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "h:m:s:e:",
+                    ["help", "flo2d_model=", "start_time=", "end_time="])
+        except getopt.GetoptError:
             usage()
-            sys.exit()
-        elif opt in ("-m", "--flo2d_model"):
-            flo2d_model = arg.strip()
-        elif opt in ("-s", "--start_time"):
-            start_time = arg.strip()
-        elif opt in ("-e", "--end_time"):
-            end_time = arg.strip()
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                usage()
+                sys.exit()
+            elif opt in ("-m", "--flo2d_model"):
+                flo2d_model = arg.strip()
+            elif opt in ("-s", "--start_time"):
+                start_time = arg.strip()
+            elif opt in ("-e", "--end_time"):
+                end_time = arg.strip()
 
-    os.chdir(r"D:\raincells")
+        os.chdir(r"D:\raincells")
+        os.system(r"venv\Scripts\activate")
 
-    if start_time is None:
-        start_time = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d 23:30:00')
-    else:
-        check_time_format(start_time)
+        if start_time is None:
+            start_time = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d 23:30:00')
+        else:
+            check_time_format(start_time)
 
-    if end_time is None:
-        end_time = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00')
-    else:
-        check_time_format(end_time)
+        if end_time is None:
+            end_time = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00')
+        else:
+            check_time_format(end_time)
 
-    if flo2d_model is None:
-        flo2d_model = "flo2d_250"
-    elif flo2d_model not in ("flo2d_250", "flo2d_150"):
-        print("Flo2d model should be either \"flo2d_250\" or \"flo2d_150\"")
-        exit(1)
+        if flo2d_model is None:
+            flo2d_model = "flo2d_250"
+        elif flo2d_model not in ("flo2d_250", "flo2d_150"):
+            print("Flo2d model should be either \"flo2d_250\" or \"flo2d_150\"")
+            exit(1)
 
-    raincell_file_path = os.path.join(r"D:\raincells",
-            'RAINCELL_{}_{}_{}.DAT'.format(flo2d_model, start_time, end_time).replace(' ', '_').replace(':', '-'))
+        raincell_file_path = os.path.join(r"D:\raincells",
+                'RAINCELL_{}_{}_{}.DAT'.format(flo2d_model, start_time, end_time).replace(' ', '_').replace(':', '-'))
 
-    if not os.path.isfile(raincell_file_path):
-        print("{} start preparing raincell".format(datetime.now()))
-        # prepare_raincell_5_min_step(raincell_file_path,
-        #         target_model=flo2d_model, start_time=start_time, end_time=end_time)
-        print(raincell_file_path, flo2d_model, start_time, end_time)
-        print("{} completed preparing raincell".format(datetime.now()))
-    else:
-        print('Raincell file already in path : ', raincell_file_path)
+        if not os.path.isfile(raincell_file_path):
+            print("{} start preparing raincell".format(datetime.now()))
+            prepare_raincell_5_min_step(raincell_file_path,
+                    target_model=flo2d_model, start_time=start_time, end_time=end_time)
+            # print(raincell_file_path, flo2d_model, start_time, end_time)
+            print("{} completed preparing raincell".format(datetime.now()))
+        else:
+            print('Raincell file already in path : ', raincell_file_path)
+
+        # os.system(r"deactivate")
+
+    except Exception:
+        traceback.print_exc()
