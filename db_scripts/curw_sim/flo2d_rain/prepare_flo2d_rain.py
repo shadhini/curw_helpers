@@ -7,11 +7,7 @@ DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 def write_to_file(file_name, data):
     with open(file_name, 'w') as f:
-        for _string in data:
-            # f.seek(0)
-            f.write(str(_string) + '\n')
-
-        f.close()
+        f.write('\n'.join(data))
 
 
 def format_rain(csv_file, start):

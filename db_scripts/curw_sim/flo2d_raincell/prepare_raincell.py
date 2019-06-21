@@ -8,13 +8,23 @@ DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 # call curw_sim.prepare_flo2d_raincell("flo2d_250", "MME", "2019-06-12 00:00:05", "2019-06-12 00:01:00");
 
 
+# def write_to_file(file_name, data):
+#     with open(file_name, 'w') as f:
+#         f.write(data)
+#
+#
+# def append_to_file(file_name, data):
+#     np.savetxt(open(file_name, 'a'), data, fmt="%s")
+
+
 def write_to_file(file_name, data):
-    with open(file_name, 'w') as f:
-        f.write(data)
+    with open(file_name, 'w+') as f:
+        f.write('\n'.join(data))
 
 
 def append_to_file(file_name, data):
-    np.savetxt(open(file_name, 'a'), data, fmt="%s")
+    with open(file_name, 'a+') as f:
+        f.write('\n'.join(data))
 
 
 # def prepare_raincell(target_model, interpolation_method, start_time, end_time, time_step_in_minutes):
@@ -81,7 +91,7 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
     length = int(((end_time-start_time).total_seconds()/60)/5)
 
     write_to_file('RAINCELL.DAT',
-            '{} {} {} {}\n'.format(5, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT)))
+            ['{} {} {} {}\n'.format(5, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT))])
 
     try:
 
@@ -99,6 +109,8 @@ def prepare_flo2d_250_MME_raincell_5_min_step(start_time, end_time):
                 results = cursor1.fetchall()
                 for result in results:
                     raincell.append('{} {}'.format(result.get('cell_id'), '%.1f' % result.get('value')))
+
+            raincell.append('')
 
             append_to_file('RAINCELL.DAT', raincell)
 
@@ -128,7 +140,7 @@ def prepare_raincell_5_min_step(target_model, interpolation_method, start_time, 
     length = int(((end_time-start_time).total_seconds()/60)/5)
 
     write_to_file('RAINCELL.DAT',
-            '{} {} {} {}\n'.format(5, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT)))
+            ['{} {} {} {}\n'.format(5, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT))])
 
     try:
 
@@ -143,9 +155,13 @@ def prepare_raincell_5_min_step(target_model, interpolation_method, start_time, 
             # Extract raincell from db
             with connection.cursor() as cursor1:
                 cursor1.callproc('prepare_flo2d_5_min_raincell', (target_model, interpolation_method, timestamp))
-                results = cursor1.fetchall()
-                for result in results:
+                for result in cursor1:
                     raincell.append('{} {}'.format(result.get('cell_id'), '%.1f' % result.get('value')))
+                raincell.append('')
+                # results = cursor1.fetchall()
+                # print(cursor1.nextset())
+                # for result in results:
+                #     raincell.append('{} {}'.format(result.get('cell_id'), '%.1f' % result.get('value')))
 
             append_to_file('RAINCELL.DAT', raincell)
 
@@ -164,4 +180,5 @@ print("{} start preparing raincell".format(datetime.now()))
 
 # prepare_flo2d_250_MME_raincell_5_min_step("2019-06-15 23:30:00", "2019-06-20 23:30:00")
 
-prepare_raincell_5_min_step(target_model="flo2d_150", interpolation_method="MME", start_time="2019-06-13 23:30:00", end_time="2019-06-18 23:30:00")
+prepare_raincell_5_min_step(target_model="flo2d_250", interpolation_method="MME", start_time="2019-06-16 23:30:00", end_time="2019-06-21 23:30:00")
+

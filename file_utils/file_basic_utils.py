@@ -15,3 +15,4 @@ def create_csv_like_txt(file_name, data):
             f.write('\n')
 
         f.close()
+

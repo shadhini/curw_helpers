@@ -176,11 +176,15 @@ if __name__=="__main__":
         else:
             run_date_str = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
-        daily_dir = 'STATIONS_{}'.format(run_date_str)
+        # daily_dir = 'STATIONS_{}'.format(run_date_str)
 
-        output_dir = os.path.join(wrf_dir, daily_dir)
+        # output_dir = os.path.join(wrf_dir, daily_dir)
 
         for wrf_model in wrf_model_list:
+
+            daily_dir = 'OUTPUT_{}_18/'.format(wrf_model, run_date_str)
+
+            output_dir = os.path.join(wrf_dir, daily_dir)
 
             model_name = "{}_{}".format(model, wrf_model)
 
@@ -200,7 +204,7 @@ if __name__=="__main__":
         traceback.print_exc()
     finally:
         os.system("sudo scp -r /home/uwcc-admin/rfield_extractor/d01 "
-                  "uwcc-admin@104.198.0.87:/var/www/html/wrf/v4/rfield")
+                  "uwcc-admin@10.138.0.6:/var/www/html/wrf/v4/rfield")
 
         print("rfields pushed to cms")
         print("Process finished.")
