@@ -1,22 +1,18 @@
 use curw_obs;
 
- CREATE TABLE `source` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `source` varchar(25) NOT NULL,
-  `description` varchar(45) DEFAULT NULL,
-  `parameters` json DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
-  `name` varchar(45) NOT NULL,
+  `station_id` varchar(45) NOT NULL,
+  `station_type` varchar(45) NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
   `latitude` double NOT NULL,
   `longitude` double NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_station_latitude` (`latitude`),
-  KEY `idx_station_longitude` (`longitude`)
+  KEY `idx_station_longitude` (`longitude`),
+  KEY `idx_station_station_id` (`station_id`),
+  KEY `idx_station_station_type` (`station_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `unit` (
@@ -35,19 +31,16 @@ CREATE TABLE `variable` (
 CREATE TABLE `run` (
   `id` varchar(64) NOT NULL,
   `station` int(11) NOT NULL,
-  `source` int(11) NOT NULL,
   `variable` int(11) NOT NULL,
   `unit` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `station` (`station`),
-  KEY `source` (`source`),
-  KEY `variable` (`variable`),
-  KEY `unit` (`unit`),
-  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`station`) REFERENCES `station` (`id`),
-  CONSTRAINT `run_ibfk_2` FOREIGN KEY (`source`) REFERENCES `source` (`id`),
-  CONSTRAINT `run_ibfk_3` FOREIGN KEY (`variable`) REFERENCES `variable` (`id`),
-  CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`)
+  KEY `run_ibfk_1_idx` (`station`),
+  KEY `run_ibfk_3` (`variable`),
+  KEY `run_ibfk_4` (`unit`),
+  CONSTRAINT `run_ibfk_1` FOREIGN KEY (`station`) REFERENCES `station` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `run_ibfk_3` FOREIGN KEY (`variable`) REFERENCES `variable` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `data` (
@@ -55,5 +48,5 @@ CREATE TABLE `data` (
   `time` datetime NOT NULL,
   `value` decimal(8,3) NOT NULL,
   PRIMARY KEY (`id`,`time`),
-  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`)
+  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
