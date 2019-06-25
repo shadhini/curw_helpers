@@ -2,7 +2,6 @@ use curw_obs;
 
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
-  `station_id` varchar(45) NOT NULL,
   `station_type` varchar(45) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
   `latitude` double NOT NULL,
@@ -11,7 +10,6 @@ CREATE TABLE `station` (
   PRIMARY KEY (`id`),
   KEY `idx_station_latitude` (`latitude`),
   KEY `idx_station_longitude` (`longitude`),
-  KEY `idx_station_station_id` (`station_id`),
   KEY `idx_station_station_type` (`station_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
