@@ -8,6 +8,13 @@ from db_adapter.curw_obs.variable import get_variable_id, add_variable
 from db_adapter.curw_obs.unit import get_unit_id, add_unit, UnitType
 from db_adapter.curw_obs.timeseries import Timeseries
 
+
+USERNAME = "root"
+PASSWORD = "password"
+HOST = "127.0.0.1"
+PORT = 3306
+DATABASE = "curw_obs"
+
 # [id[0],name[1],start_date[2],end_date[3],station[4],variable[5],unit[6],type[7],source[8],id[9],stationId[10],name[11],
 # control[12],status[13],latitude[14],longitude[15],resolution[16],description[17]]
 
@@ -95,8 +102,6 @@ def insert_curw_obs_runs():
             else:
                 station_type = StationEnum.CUrW_WeatherStation
 
-            meta_data['station_type'] = StationEnum.getTypeString(station_type)
-
             name = curw_old_obs_entries[old_index][11]
 
             latitude = curw_old_obs_entries[old_index][14]
@@ -117,6 +122,8 @@ def insert_curw_obs_runs():
                 station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude,
                         station_type=station_type)
 
+            meta_data['station_type'] = StationEnum.getTypeString(station_type)
+
             run_name = curw_old_obs_entries[old_index][1]
 
             TS = Timeseries(pool=pool)
@@ -136,3 +143,6 @@ def insert_curw_obs_runs():
         print("Exception occurred while inserting run entries to curw_obs run table and making hash mapping")
     finally:
         destroy_Pool(pool=pool)
+
+
+insert_curw_obs_runs()

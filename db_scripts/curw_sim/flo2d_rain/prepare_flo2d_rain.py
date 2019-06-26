@@ -8,6 +8,7 @@ DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 def write_to_file(file_name, data):
     with open(file_name, 'w') as f:
         f.write('\n'.join(data))
+    print("File generated")
 
 
 def format_rain(csv_file, start):
@@ -37,4 +38,28 @@ def format_rain(csv_file, start):
     write_to_file("RAIN.DAT", rain_dat)
 
 
-format_rain("6531.csv", datetime.strptime("2019-06-12 23:30:00", DATE_TIME_FORMAT))
+# format_rain("6531.csv", datetime.strptime("2019-06-12 23:30:00", DATE_TIME_FORMAT))
+
+
+def generate_time_values(start, end):
+
+    start = datetime.strptime(start, DATE_TIME_FORMAT)
+    end = datetime.strptime(end, DATE_TIME_FORMAT)
+
+    times_original = [start]
+
+    time = start
+    while times_original[-1] < end:
+        time = time + timedelta(minutes=5)
+        times_original.append(time)
+        print(time)
+
+    times = []
+    for i in range(len(times_original)):
+        times.append("{}".format('%.4f' % ((times_original[i] - start).total_seconds() / 3600)))
+        print((times_original[i] - start).total_seconds() / 3600)
+
+    write_to_file("times.DAT", times)
+
+
+# generate_time_values(start="2019-06-01 00:00:00", end="2019-06-20 00:00:00")

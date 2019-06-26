@@ -1,5 +1,19 @@
 use curw_obs;
 
+CREATE TABLE `variable` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `variable` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `unit` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `unit` varchar(10) NOT NULL,
+  `type` enum('Accumulative','Instantaneous','Mean') NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
   `station_type` varchar(45) NOT NULL,
@@ -13,24 +27,14 @@ CREATE TABLE `station` (
   KEY `idx_station_station_type` (`station_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `unit` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `unit` varchar(10) NOT NULL,
-  `type` enum('Accumulative','Instantaneous','Mean') NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `variable` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `variable` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `run` (
   `id` varchar(64) NOT NULL,
   `station` int(11) NOT NULL,
   `variable` int(11) NOT NULL,
   `unit` int(11) NOT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `run_name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `run_ibfk_1_idx` (`station`),
