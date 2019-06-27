@@ -15,6 +15,7 @@ HOST = "127.0.0.1"
 PORT = 3306
 DATABASE = "curw_obs"
 
+
 # [id[0],name[1],start_date[2],end_date[3],station[4],variable[5],unit[6],type[7],source[8],id[9],stationId[10],name[11],
 # control[12],status[13],latitude[14],longitude[15],resolution[16],description[17]]
 
