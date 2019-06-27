@@ -1,7 +1,7 @@
 import traceback
 import csv
 
-from db_adapter.constants import CURW_OBS_HOST, CURW_OBS_PORT, CURW_OBS_USERNAME, CURW_OBS_PASSWORD, CURW_OBS_DATABASE
+# from db_adapter.constants import CURW_OBS_HOST, CURW_OBS_PORT, CURW_OBS_USERNAME, CURW_OBS_PASSWORD, CURW_OBS_DATABASE
 from db_adapter.base import get_Pool, destroy_Pool
 from db_adapter.curw_obs.station import StationEnum, get_station_id, add_station
 from db_adapter.curw_obs.variable import get_variable_id, add_variable
@@ -59,8 +59,10 @@ def insert_curw_obs_runs():
     hash_mapping = [['old_hash_id', 'new_hash_id']]
 
     try:
-        pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
-                db=CURW_OBS_DATABASE)
+        # pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+        #         db=CURW_OBS_DATABASE)
+
+        pool = get_Pool(host=HOST, port=PORT, user=USERNAME, password=PASSWORD, db=DATABASE)
 
         curw_old_obs_entries = read_csv('all_curw_obs.csv')
 
@@ -130,9 +132,15 @@ def insert_curw_obs_runs():
 
             tms_id = TS.get_timeseries_id_if_exists(meta_data=meta_data)
 
+            meta_data['station_id'] = station_id
+            meta_data['variable_id'] = variable_id
+            meta_data['unit_id'] = unit_id
+            meta_data['run_name'] = run_name
+
             if tms_id is None:
                 tms_id = TS.generate_timeseries_id(meta_data=meta_data)
-                TS.insert_run(run_tuple=(tms_id, run_name, None, None, station_id, variable_id, unit_id))
+                meta_data['tms_id'] = tms_id
+                TS.insert_run(run_meta=meta_data)
 
             hash_mapping.append([curw_old_obs_entries[old_index][0], tms_id])
 
