@@ -15,9 +15,7 @@ HOST = "127.0.0.1"
 PORT = 3306
 DATABASE = "curw_obs"
 
-
-# [id[0],name[1],start_date[2],end_date[3],station[4],variable[5],unit[6],type[7],source[8],id[9],stationId[10],name[11],
-# control[12],status[13],latitude[14],longitude[15],resolution[16],description[17]]
+# id[0],name[1],name[2|station],latitude[3],longitude[4],description[5],variable[6],unit[7],type[8]
 
 # 'latitude'    : '',
 #                 'longitude'   : '',
@@ -71,63 +69,51 @@ def insert_curw_obs_runs():
 
             meta_data = {}
 
-            variable = curw_old_obs_entries[old_index][5]
+            old_hash_id = curw_old_obs_entries[old_index][0]
+            run_name = curw_old_obs_entries[old_index][1]
+            station_name = curw_old_obs_entries[old_index][2]
+            latitude =curw_old_obs_entries[old_index][3]
+            longitude = curw_old_obs_entries[old_index][4]
+            description = curw_old_obs_entries[old_index][5]
+            variable = curw_old_obs_entries[old_index][6]
+            unit = curw_old_obs_entries[old_index][7]
+            unit_type = curw_old_obs_entries[old_index][8]
+
+            meta_data['run_name'] = run_name
 
             meta_data['variable'] = variable
-
-            variable_id = get_variable_id(pool=pool, variable=variable)
-
-            if variable_id is None:
-                add_variable(pool=pool, variable=curw_old_obs_entries[old_index][5])
-                variable_id = get_variable_id(pool=pool, variable=variable)
-
-            unit = curw_old_obs_entries[old_index][6]
-
             meta_data['unit'] = unit
+            meta_data['unit_type'] = unit_type
 
-            if unit == 'mm':
-                unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.Accumulative)
-                meta_data['unit_type'] = UnitType.Accumulative.value
-            else:
-                unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.Instantaneous)
-                meta_data['unit_type'] = UnitType.Instantaneous.value
-
-            if unit_id is None:
-                if unit=='mm':
-                    add_unit(pool=pool, unit=unit, unit_type=UnitType.Accumulative)
-                    unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.Accumulative)
-                else:
-                    add_unit(pool=pool, unit=unit, unit_type=UnitType.Instantaneous)
-                    unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.Instantaneous)
+            meta_data['latitude'] = latitude
+            meta_data['longitude'] = longitude
 
             if variable == "WaterLevel":
                 station_type = StationEnum.CUrW_WaterLevelGauge
             else:
                 station_type = StationEnum.CUrW_WeatherStation
 
-            name = curw_old_obs_entries[old_index][11]
+            meta_data['station_type'] = StationEnum.getTypeString(station_type)
 
-            latitude = curw_old_obs_entries[old_index][14]
+            unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
 
-            meta_data['latitude'] = latitude
+            if unit_id is None:
+                add_unit(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
+                unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
 
-            longitude = curw_old_obs_entries[old_index][15]
+            variable_id = get_variable_id(pool=pool, variable=variable)
 
-            meta_data['longitude'] = longitude
-
-            description = curw_old_obs_entries[old_index][17]
+            if variable is None:
+                add_variable(pool=pool, variable=variable)
+                variable_id = get_variable_id(pool=pool, variable=variable)
 
             station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude, station_type=station_type)
 
             if station_id is None:
-                add_station(pool=pool, name=name, latitude=latitude, longitude=longitude,
-                        description=description, station_type=station_type)
+                add_station(pool=pool, name=station_name, latitude=latitude, longitude=longitude,
+                        station_type=station_type, description=description)
                 station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude,
                         station_type=station_type)
-
-            meta_data['station_type'] = StationEnum.getTypeString(station_type)
-
-            run_name = curw_old_obs_entries[old_index][1]
 
             TS = Timeseries(pool=pool)
 
@@ -136,14 +122,13 @@ def insert_curw_obs_runs():
             meta_data['station_id'] = station_id
             meta_data['variable_id'] = variable_id
             meta_data['unit_id'] = unit_id
-            meta_data['run_name'] = run_name
 
             if tms_id is None:
                 tms_id = TS.generate_timeseries_id(meta_data=meta_data)
                 meta_data['tms_id'] = tms_id
                 TS.insert_run(run_meta=meta_data)
 
-            hash_mapping.append([curw_old_obs_entries[old_index][0], tms_id])
+            hash_mapping.append([old_hash_id, tms_id])
 
         create_csv(file_name='curw_to_curw_obs_hash_id_mapping.csv', data=hash_mapping)
 
