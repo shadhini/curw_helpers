@@ -13,14 +13,13 @@ CREATE TABLE `unit` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
   `station_type` varchar(45) NOT NULL,
   `name` varchar(45) DEFAULT NULL,
-  `latitude` double NOT NULL,
-  `longitude` double NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `latitude` decimal(9,6) NOT NULL,
+  `longitude` decimal(9,6) NOT NULL,
+  `description` json DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_station_latitude` (`latitude`),
   KEY `idx_station_longitude` (`longitude`),

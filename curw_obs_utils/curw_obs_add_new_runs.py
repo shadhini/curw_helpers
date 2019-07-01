@@ -15,7 +15,7 @@ HOST = "127.0.0.1"
 PORT = 3306
 DATABASE = "curw_obs"
 
-# id[0],name[1],name[2|station],latitude[3],longitude[4],description[5],variable[6],unit[7],type[8]
+# id[0],name[1],start_date[2],end_date[3],name[4|station],latitude[5],longitude[6],description[7],variable[8],unit[9],type[10]
 
 # 'latitude'    : '',
 #                 'longitude'   : '',
@@ -71,13 +71,13 @@ def insert_curw_obs_runs():
 
             old_hash_id = curw_old_obs_entries[old_index][0]
             run_name = curw_old_obs_entries[old_index][1]
-            station_name = curw_old_obs_entries[old_index][2]
-            latitude =curw_old_obs_entries[old_index][3]
-            longitude = curw_old_obs_entries[old_index][4]
-            description = curw_old_obs_entries[old_index][5]
-            variable = curw_old_obs_entries[old_index][6]
-            unit = curw_old_obs_entries[old_index][7]
-            unit_type = curw_old_obs_entries[old_index][8]
+            station_name = curw_old_obs_entries[old_index][4]
+            latitude =curw_old_obs_entries[old_index][5]
+            longitude = curw_old_obs_entries[old_index][6]
+            description = curw_old_obs_entries[old_index][7]
+            variable = curw_old_obs_entries[old_index][8]
+            unit = curw_old_obs_entries[old_index][9]
+            unit_type = curw_old_obs_entries[old_index][10]
 
             meta_data['run_name'] = run_name
 
@@ -103,7 +103,7 @@ def insert_curw_obs_runs():
 
             variable_id = get_variable_id(pool=pool, variable=variable)
 
-            if variable is None:
+            if variable_id is None:
                 add_variable(pool=pool, variable=variable)
                 variable_id = get_variable_id(pool=pool, variable=variable)
 
