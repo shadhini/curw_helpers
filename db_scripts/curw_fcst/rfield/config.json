@@ -1,0 +1,7 @@
+{
+  "host": "10.138.0.13",
+  "user": "readuser",
+  "password": "aquaread",
+  "db": "curw_fcst",
+  "port": 3306
+}

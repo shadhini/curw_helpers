@@ -1,23 +1,38 @@
 import traceback
 import pymysql
+import json
 from datetime import datetime, timedelta
 
 
-def write_to_file(file_name, data):
-    with open(file_name, 'w') as f:
-        for _string in data:
-            # f.seek(0)
-            f.write(str(_string) + '\n')
+# connection params
+HOST = ""
+USER = ""
+PASSWORD = ""
+DB =""
+PORT = ""
 
-        f.close()
+
+def read_attribute_from_config_file(attribute, config):
+    """
+    :param attribute: key name of the config json file
+    :param config: loaded json file
+    :return:
+    """
+    if attribute in config and (config[attribute]!=""):
+        return config[attribute]
+    else:
+        print("{} not specified in config file.".format(attribute))
+        exit(1)
+
+
+def write_to_file(file_name, data):
+    with open(file_name, 'w+') as f:
+        f.write('\n'.join(data))
 
 
 def gen_rfield_d03_kelani_basin(model, version):
     # Connect to the database
-    connection = pymysql.connect(host='35.230.102.148',
-            user='root',
-            password='cfcwm07',
-            db='curw_fcst',
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
 
     start_time = ''
@@ -60,11 +75,30 @@ def gen_rfield_d03_kelani_basin(model, version):
         connection.close()
 
 
-gen_rfield_d03_kelani_basin("WRF_A", "v3")
-gen_rfield_d03_kelani_basin("WRF_C", "v3")
-gen_rfield_d03_kelani_basin("WRF_E", "v3")
-gen_rfield_d03_kelani_basin("WRF_SE", "v3")
-#gen_rfield_d03_kelani_basin("WRF_A", "v4")
-#gen_rfield_d03_kelani_basin("WRF_C", "v4")
-#gen_rfield_d03_kelani_basin("WRF_E", "v4")
-#gen_rfield_d03_kelani_basin("WRF_SE", "v4")
+if __name__=="__main__":
+
+    try:
+
+        config = json.loads(open('config.json').read())
+
+        # connection params
+        HOST = read_attribute_from_config_file('host', config)
+        USER = read_attribute_from_config_file('user', config)
+        PASSWORD = read_attribute_from_config_file('password', config)
+        DB = read_attribute_from_config_file('db', config)
+        PORT = read_attribute_from_config_file('port', config)
+
+        gen_rfield_d03_kelani_basin("WRF_A", "v3")
+        gen_rfield_d03_kelani_basin("WRF_C", "v3")
+        gen_rfield_d03_kelani_basin("WRF_E", "v3")
+        gen_rfield_d03_kelani_basin("WRF_SE", "v3")
+        # gen_rfield_d03_kelani_basin("WRF_A", "v4")
+        # gen_rfield_d03_kelani_basin("WRF_C", "v4")
+        # gen_rfield_d03_kelani_basin("WRF_E", "v4")
+        # gen_rfield_d03_kelani_basin("WRF_SE", "v4")
+
+    except Exception as e:
+        print('JSON config data loading error.')
+        traceback.print_exc()
+
+

@@ -1,28 +1,42 @@
 import traceback
 import pymysql
+import json
 from datetime import datetime, timedelta
+
+# connection params
+HOST = ""
+USER = ""
+PASSWORD = ""
+DB =""
+PORT = ""
+
+
+def read_attribute_from_config_file(attribute, config):
+    """
+    :param attribute: key name of the config json file
+    :param config: loaded json file
+    :return:
+    """
+    if attribute in config and (config[attribute]!=""):
+        return config[attribute]
+    else:
+        print("{} not specified in config file.".format(attribute))
+        exit(1)
+
+
+def write_to_file(file_name, data):
+    with open(file_name, 'w+') as f:
+        f.write('\n'.join(data))
 
 
 #############################
 # Raw WRF RFIELD GENERATION #
 #############################
 
-
-def write_to_file(file_name, data):
-    with open(file_name, 'w') as f:
-        for _string in data:
-            # f.seek(0)
-            f.write(str(_string) + '\n')
-
-        f.close()
-
-
 def gen_rfield_d03_kelani_basin(model, version):
+
     # Connect to the database
-    connection = pymysql.connect(host='35.230.102.148',
-            user='root',
-            password='cfcwm07',
-            db='curw_fcst',
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
 
     start_time = ''
@@ -64,16 +78,9 @@ def gen_rfield_d03_kelani_basin(model, version):
         print("Process finished")
 
 
-gen_rfield_d03_kelani_basin("WRF_A", "v4")
-gen_rfield_d03_kelani_basin("WRF_C", "v4")
-gen_rfield_d03_kelani_basin("WRF_E", "v4")
-gen_rfield_d03_kelani_basin("WRF_SE", "v4")
-
-
 #############################
 # MME WRF RFIELD GENERATION #
 #############################
-
 
 def average_timeseries(timeseries):
     """
@@ -84,30 +91,15 @@ def average_timeseries(timeseries):
     avg_timeseries = []
 
     for i in range(len(timeseries)):
-        avg_timeseries.append([timeseries[i][0], timeseries[i][1], '%.3f' % ((timeseries[i][2]+timeseries[i][3])/2)])
+        avg_timeseries.append("{} {} {}".format(timeseries[i][0], timeseries[i][1], '%.3f' % ((timeseries[i][2]+timeseries[i][3])/2)))
 
     return avg_timeseries
-
-
-def write_to_file_list_of_lists(file_name, data):
-    with open(file_name, 'w') as f:
-        for _list in data:
-            for i in range(len(_list) - 1):
-                # f.seek(0)
-                f.write(str(_list[i]) + ' ')
-            f.write(str(_list[len(_list) - 1]))
-            f.write('\n')
-
-        f.close()
 
 
 def gen_MME_rfield_d03_kelani_basin(model1, version1, model2, version2):
 
     # Connect to the database
-    connection = pymysql.connect(host='35.230.102.148',
-            user='root',
-            password='cfcwm07',
-            db='curw_fcst',
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
 
     start_time = ''
@@ -153,11 +145,9 @@ def gen_MME_rfield_d03_kelani_basin(model1, version1, model2, version2):
             rfield = average_timeseries(temp_rfield)
 
             if timestamp < now:
-                write_to_file_list_of_lists('/var/www/html/wrf/v4/rfield/kelani_basin/past/WRF_MME_v4_{}_rfield.txt'
-                    .format(timestamp), rfield)
+                write_to_file('/var/www/html/wrf/v4/rfield/kelani_basin/past/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
             else:
-                write_to_file_list_of_lists('/var/www/html/wrf/v4/rfield/kelani_basin/future/WRF_MME_v4_{}_rfield.txt'
-                    .format(timestamp), rfield)
+                write_to_file('/var/www/html/wrf/v4/rfield/kelani_basin/future/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
 
             timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
@@ -168,4 +158,26 @@ def gen_MME_rfield_d03_kelani_basin(model1, version1, model2, version2):
         print("Process finished")
 
 
-gen_MME_rfield_d03_kelani_basin(model1="WRF_E", version1="v4", model2="WRF_SE", version2="v4")
+if __name__=="__main__":
+
+    try:
+
+        config = json.loads(open('config.json').read())
+
+        # connection params
+        HOST = read_attribute_from_config_file('host', config)
+        USER = read_attribute_from_config_file('user', config)
+        PASSWORD = read_attribute_from_config_file('password', config)
+        DB = read_attribute_from_config_file('db', config)
+        PORT = read_attribute_from_config_file('port', config)
+
+        gen_rfield_d03_kelani_basin("WRF_A", "v4")
+        gen_rfield_d03_kelani_basin("WRF_C", "v4")
+        gen_rfield_d03_kelani_basin("WRF_E", "v4")
+        gen_rfield_d03_kelani_basin("WRF_SE", "v4")
+
+        gen_MME_rfield_d03_kelani_basin(model1="WRF_E", version1="v4", model2="WRF_SE", version2="v4")
+
+    except Exception as e:
+        print('JSON config data loading error.')
+        traceback.print_exc()
