@@ -15,6 +15,8 @@ HOST = "127.0.0.1"
 PORT = 3306
 DATABASE = "curw_obs"
 
+CURW_WEATHER_STATION =
+CURW_WATER_LEVEL_STATION =
 # id[0],name[1],start_date[2],end_date[3],name[4|station],latitude[5],longitude[6],description[7],variable[8],unit[9],type[10]
 
 # 'latitude'    : '',
@@ -139,4 +141,84 @@ def insert_curw_obs_runs():
         destroy_Pool(pool=pool)
 
 
+def generate_curw_obs_hash_id(variable, unit, unit_type, latitude, longitude, station_type,
+                              station_name=None, description=None, append_description=False):
+
+    try:
+        # pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+        #         db=CURW_OBS_DATABASE)
+
+        pool = get_Pool(host=HOST, port=PORT, user=USERNAME, password=PASSWORD, db=DATABASE)
+
+        meta_data = { }
+
+        run_name = curw_old_obs_entries[old_index][1]
+        station_name = curw_old_obs_entries[old_index][4]
+        latitude = curw_old_obs_entries[old_index][5]
+        longitude = curw_old_obs_entries[old_index][6]
+        description = curw_old_obs_entries[old_index][7]
+        variable = curw_old_obs_entries[old_index][8]
+        unit = curw_old_obs_entries[old_index][9]
+        unit_type = curw_old_obs_entries[old_index][10]
+
+        meta_data['run_name'] = run_name
+
+        meta_data['variable'] = variable
+        meta_data['unit'] = unit
+        meta_data['unit_type'] = unit_type
+
+        meta_data['latitude'] = latitude
+        meta_data['longitude'] = longitude
+
+        if variable=="WaterLevel":
+            station_type = StationEnum.CUrW_WaterLevelGauge
+        else:
+            station_type = StationEnum.CUrW_WeatherStation
+
+        meta_data['station_type'] = StationEnum.getTypeString(station_type)
+
+        unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
+
+        if unit_id is None:
+            add_unit(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
+            unit_id = get_unit_id(pool=pool, unit=unit, unit_type=UnitType.getType(unit_type))
+
+        variable_id = get_variable_id(pool=pool, variable=variable)
+
+        if variable_id is None:
+            add_variable(pool=pool, variable=variable)
+            variable_id = get_variable_id(pool=pool, variable=variable)
+
+        station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude, station_type=station_type)
+
+        if station_id is None:
+            add_station(pool=pool, name=station_name, latitude=latitude, longitude=longitude,
+                    station_type=station_type, description=description)
+            station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude,
+                    station_type=station_type)
+
+        TS = Timeseries(pool=pool)
+
+        tms_id = TS.get_timeseries_id_if_exists(meta_data=meta_data)
+
+        meta_data['station_id'] = station_id
+        meta_data['variable_id'] = variable_id
+        meta_data['unit_id'] = unit_id
+
+        if tms_id is None:
+            tms_id = TS.generate_timeseries_id(meta_data=meta_data)
+            meta_data['tms_id'] = tms_id
+            TS.insert_run(run_meta=meta_data)
+
+
+    except Exception:
+        traceback.print_exc()
+        print("Exception occurred while inserting run entries to curw_obs run table and making hash mapping")
+    finally:
+        destroy_Pool(pool=pool)
+
+def insert_timeseries(run_name=None):
+
 insert_curw_obs_runs()
+
+

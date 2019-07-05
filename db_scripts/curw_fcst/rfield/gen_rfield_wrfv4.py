@@ -176,7 +176,7 @@ if __name__=="__main__":
         gen_rfield_d03_kelani_basin("WRF_E", "v4")
         gen_rfield_d03_kelani_basin("WRF_SE", "v4")
 
-        gen_MME_rfield_d03_kelani_basin(model1="WRF_E", version1="v4", model2="WRF_SE", version2="v4")
+        # gen_MME_rfield_d03_kelani_basin(model1="WRF_E", version1="v4", model2="WRF_SE", version2="v4")
 
     except Exception as e:
         print('JSON config data loading error.')
