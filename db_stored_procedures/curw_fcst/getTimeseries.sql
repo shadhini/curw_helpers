@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getTimeseries`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getLatestTimeseries`(
 IN id VARCHAR(64),
 IN time DATETIME
 )

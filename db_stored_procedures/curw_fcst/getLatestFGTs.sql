@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getLatestFGTs`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getLatestFGTs`(
 IN id VARCHAR(64),
 IN time DATETIME
 )

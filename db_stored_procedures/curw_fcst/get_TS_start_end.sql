@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `get_TS_start_end`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_TS_start_end`(
 IN model VARCHAR(25),
 IN version VARCHAR(25)
 )
@@ -8,7 +8,8 @@ SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run
 SET @random_id = (SELECT curw_fcst.run.id FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID limit 1);
 
 SELECT 
-    MIN(curw_fcst.data.time) as start, MAX(curw_fcst.data.time) as end
+    MIN(curw_fcst.data.time) AS start,
+    MAX(curw_fcst.data.time) AS end
 FROM
     curw_fcst.data
 WHERE

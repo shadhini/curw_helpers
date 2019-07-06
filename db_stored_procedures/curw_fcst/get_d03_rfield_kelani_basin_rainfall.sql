@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `get_d03_rfield_kelani_basin_rainfall`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_d03_rfield_kelani_basin_rainfall`(
 IN model VARCHAR(25),
 IN version VARCHAR(25),
 IN time DATETIME

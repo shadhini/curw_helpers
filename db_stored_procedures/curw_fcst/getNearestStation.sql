@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getNearestStation`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getNearestStation`(
 IN lat DECIMAL(9,6),
 IN lng DECIMAL(9,6)
 )

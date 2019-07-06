@@ -1,4 +1,4 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getRainWithinGivenLead`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getRainWithinGivenLead`(
 IN model VARCHAR(25),
 IN version VARCHAR(25),
 IN station_id INT(11),
