@@ -33,7 +33,7 @@ if __name__=="__main__":
 
         print("{} : ####### Insert fcst rainfall for FLO2D 30 grids".format(datetime.now()))
         update_rainfall_fcsts(flo2d_model=FLO2D_30, method=method, grid_interpolation=grid_interpolation,
-                model_list=model_list)
+                model_list=model_list, timestep=15)
 
     except Exception as e:
         traceback.print_exc()

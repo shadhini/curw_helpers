@@ -33,7 +33,7 @@ if __name__=="__main__":
 
         print("{} : ####### Insert fcst rainfall for Obs Stations grids #######".format(datetime.now()))
         update_rainfall_fcsts(target_model=HecHMS, method=method, grid_interpolation=grid_interpolation,
-                model_list=model_list)
+                model_list=model_list, timestep=5)
 
     except Exception as e:
         traceback.print_exc()

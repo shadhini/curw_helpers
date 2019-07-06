@@ -13,7 +13,7 @@ if __name__=="__main__":
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
         print("{} : ####### Insert obs rainfall for Obs Stations grids ########".format(datetime.now()))
-        update_rainfall_obs(target_model=HecHMS, method=method, grid_interpolation=grid_interpolation)
+        update_rainfall_obs(target_model=HecHMS, method=method, grid_interpolation=grid_interpolation, timestep=5)
 
     except Exception as e:
         traceback.print_exc()
