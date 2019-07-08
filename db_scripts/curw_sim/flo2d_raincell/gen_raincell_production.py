@@ -17,8 +17,26 @@ def append_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
+def insert(originalfile,string):
+    with open(originalfile,'r') as f:
+        with open('newfile.txt','w') as f2:
+            f2.write(string)
+            f2.write(f.read())
+    os.rename('newfile.txt',originalfile)
+
+
 def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
                                 target_model="flo2d_250", interpolation_method="MME"):
+    """
+    Create raincell for flo2d
+    :param raincell_file_path:
+    :param start_time: Raincell start time (e.g: "2019-06-05 00:00:00")
+    :param end_time: Raincell start time (e.g: "2019-06-05 23:30:00")
+    :param target_model: FLO2D model (e.g. flo2d_250, flo2d_150)
+    :param interpolation_method: value interpolation method (e.g. "MME")
+    :param timestep: Raincell time step (e.g. 5, 15)
+    :return:
+    """
     connection = pymysql.connect(host='35.230.102.148',
             user='sim_user',
             password='sim_pass',
@@ -34,19 +52,28 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
         exit(1)
 
     max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'), DATE_TIME_FORMAT)
+    min_start_time = datetime.strptime("2019-06-28", DATE_TIME_FORMAT)
 
     if end_time > max_end_time:
         end_time = max_end_time
 
-    length = int(((end_time-start_time).total_seconds()/60)/5)
+    if start_time < min_start_time:
+        start_time = min_start_time
+
+    if target_model=="flo2d_250":
+        timestep = 5
+    elif target_model=="flo2d_150":
+        timestep = 15
+
+    length = int(((end_time-start_time).total_seconds()/60)/timestep)
 
     write_to_file(raincell_file_path,
-            ['{} {} {} {}\n'.format(5, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT))])
+            ['{} {} {} {}\n'.format(timestep, length, start_time.strftime(DATE_TIME_FORMAT), end_time.strftime(DATE_TIME_FORMAT))])
     try:
         timestamp = start_time
         while timestamp < end_time:
             raincell = []
-            timestamp = timestamp + timedelta(minutes=5)
+            timestamp = timestamp + timedelta(minutes=timestep)
             # Extract raincell from db
             with connection.cursor() as cursor1:
                 cursor1.callproc('prepare_flo2d_5_min_raincell', (target_model, interpolation_method, timestamp))
