@@ -37,27 +37,29 @@ def fill_missing_obs_with_0s(model, timestep):
 
         for id in ids:
             print(id)
-            with connection.cursor() as cursor2:
-                sql_statement = "select min(`time`) as `time` from `data` where id=%s;"
-                cursor2.execute(sql_statement, id)
-                end = cursor2.fetchone()['time']
+            # with connection.cursor() as cursor2:
+            #     sql_statement = "select min(`time`) as `time` from `data` where id=%s;"
+            #     cursor2.execute(sql_statement, id)
+            #     end = cursor2.fetchone()['time']
+            end = datetime.strptime("2019-07-08 00:00:00", DATE_TIME_FORMAT)
 
-            data = []
 
             timestamp = start
             while timestamp < end:
                 print(timestamp)
-                data.append((id, timestamp, 0))
+
+                try:
+                    with connection.cursor() as cursor3:
+                        sql_statement = "INSERT INTO `data` (`id`,`time`,`value`) VALUES (%s,%s,%s);"
+                        cursor3.execute(sql_statement, (id, timestamp, 0))
+                    connection.commit()
+                except Exception as ex:
+                    connection.rollback()
+                    traceback.print_exc()
+
                 timestamp = timestamp + timedelta(minutes=timestep)
 
-            with connection.cursor() as cursor3:
-                sql_statement = "INSERT INTO `data` (`id`,`time`,`value`) VALUES (%s,%s,%s);"
-                cursor3.executemany(sql_statement, data)
-
-            connection.commit()
-
     except Exception as ex:
-        connection.rollback()
         traceback.print_exc()
     finally:
         connection.close()
