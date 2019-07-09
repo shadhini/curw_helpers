@@ -55,7 +55,7 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
         exit(1)
 
     max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'), DATE_TIME_FORMAT)
-    min_start_time = datetime.strptime("2019-06-28", DATE_TIME_FORMAT)
+    min_start_time = datetime.strptime("2019-06-28 00:00:00", DATE_TIME_FORMAT)
 
     if end_time > max_end_time:
         end_time = max_end_time
