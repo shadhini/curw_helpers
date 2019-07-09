@@ -6,6 +6,13 @@ import os
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+# connection params
+HOST = "10.138.0.13"
+USER = "routine_user"
+PASSWORD = "aquaroutine"
+DB ="curw_sim"
+PORT = 3306
+
 
 def write_to_file(file_name, data):
     with open(file_name, 'w+') as f:
@@ -34,13 +41,9 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
     :param end_time: Raincell start time (e.g: "2019-06-05 23:30:00")
     :param target_model: FLO2D model (e.g. flo2d_250, flo2d_150)
     :param interpolation_method: value interpolation method (e.g. "MME")
-    :param timestep: Raincell time step (e.g. 5, 15)
     :return:
     """
-    connection = pymysql.connect(host='35.230.102.148',
-            user='sim_user',
-            password='sim_pass',
-            db='curw_sim',
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
     print("Connected to database")
 
@@ -76,7 +79,7 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
             timestamp = timestamp + timedelta(minutes=timestep)
             # Extract raincell from db
             with connection.cursor() as cursor1:
-                cursor1.callproc('prepare_flo2d_5_min_raincell', (target_model, interpolation_method, timestamp))
+                cursor1.callproc('prepare_flo2d_raincell', (target_model, interpolation_method, timestamp))
                 for result in cursor1:
                     raincell.append('{} {}'.format(result.get('cell_id'), '%.1f' % result.get('value')))
                 raincell.append('')

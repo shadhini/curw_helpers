@@ -7,6 +7,13 @@ import sys
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+# connection params
+HOST = "10.138.0.13"
+USER = "routine_user"
+PASSWORD = "aquaroutine"
+DB ="curw_sim"
+PORT = 3306
+
 
 def write_to_file(file_name, data):
     with open(file_name, 'w+') as f:
@@ -18,15 +25,21 @@ def append_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
-def check_time_format(time):
+def check_time_format(time, model):
     try:
         time = datetime.strptime(time, DATE_TIME_FORMAT)
+
         if time.strftime('%S') != '00':
             print("Seconds should be always 00")
-        if time.strftime('%M') not in ('05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '00'):
-            print("Minutes should be multiple of 5")
             exit(1)
-            return True
+        if model=="flo2d_250" and time.strftime('%M') not in ('05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '00'):
+            print("Minutes should be multiple of 5 fro flo2d_250")
+            exit(1)
+        if model=="flo2d_150" and time.strftime('%M') not in ('15', '30', '45', '00'):
+            print("Minutes should be multiple of 15 for flo2d_150")
+            exit(1)
+
+        return True
     except Exception:
         traceback.print_exc()
         print("Time {} is not in proper format".format(time))
@@ -45,10 +58,7 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
     :param interpolation_method: value interpolation method (e.g. "MME")
     :return:
     """
-    connection = pymysql.connect(host='35.230.102.148',
-            user='sim_user',
-            password='sim_pass',
-            db='curw_sim',
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
     print("Connected to database")
 
@@ -85,7 +95,7 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
             count=1
             # Extract raincell from db
             with connection.cursor() as cursor1:
-                cursor1.callproc('prepare_flo2d_5_min_raincell', (target_model, interpolation_method, timestamp))
+                cursor1.callproc('prepare_flo2d_raincell', (target_model, interpolation_method, timestamp))
                 for result in cursor1:
                     raincell.append('{} {}'.format(result.get('cell_id'), '%.1f' % result.get('value')))
                 raincell.append('')
@@ -96,25 +106,6 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
     finally:
         connection.close()
         print("{} raincell generation process completed".format(datetime.now()))
-
-
-# def get_ts_start_end(run_date, run_time, forward=3, backward=2):
-#     result = []
-#     """
-#     method for geting timeseries start and end using input params.
-#     :param run_date:run_date: string yyyy-mm-ddd
-#     :param run_time:run_time: string hh:mm:ss
-#     :param forward:int
-#     :param backward:int
-#     :return: tuple (string, string)
-#     """
-#     run_datetime = datetime.strptime('%s %s' % (run_date, '00:00:00'), '%Y-%m-%d %H:%M:%S')
-#     ts_start_datetime = run_datetime - timedelta(days=backward)
-#     ts_end_datetime = run_datetime + timedelta(days=forward)
-#     result.append(ts_start_datetime.strftime('%Y-%m-%d %H:%M:%S'))
-#     result.append(ts_end_datetime.strftime('%Y-%m-%d %H:%M:%S'))
-#     print(result)
-#     return result
 
 
 def create_dir_if_not_exists(path):
@@ -131,7 +122,7 @@ def create_dir_if_not_exists(path):
 
 def usage():
     usageText = """
-    Usage: ./gen_raincell.py [-m flo2d_XXX][-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
+    Usage: .\gen_raincell.py [-m flo2d_XXX][-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
     
     -h  --help          Show usage
     -m  --model         FLO2D model (e.g. flo2d_250, flo2d_150). Default is flo2d_250.
@@ -168,21 +159,22 @@ if __name__=="__main__":
         os.chdir(r"D:\raincells")
         os.system(r"venv\Scripts\activate")
 
-        if start_time is None:
-            start_time = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d 23:30:00')
-        else:
-            check_time_format(start_time)
-
-        if end_time is None:
-            end_time = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00')
-        else:
-            check_time_format(end_time)
-
         if flo2d_model is None:
             flo2d_model = "flo2d_250"
         elif flo2d_model not in ("flo2d_250", "flo2d_150"):
             print("Flo2d model should be either \"flo2d_250\" or \"flo2d_150\"")
             exit(1)
+
+        if start_time is None:
+            start_time = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d 23:30:00')
+        else:
+            check_time_format(time=start_time, model=flo2d_model)
+
+        if end_time is None:
+            end_time = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00')
+        else:
+            check_time_format(time=end_time, model=flo2d_model)
+
 
         raincell_file_path = os.path.join(r"D:\raincells",
                 'RAINCELL_{}_{}_{}.DAT'.format(flo2d_model, start_time, end_time).replace(' ', '_').replace(':', '-'))
