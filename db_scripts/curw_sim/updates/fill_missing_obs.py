@@ -72,5 +72,5 @@ fill_missing_obs_with_0s(model="flo2d_250", timestep=5)
 print("Fill missing obs with 0s in flo2d 150")
 fill_missing_obs_with_0s(model="flo2d_150", timestep=15)
 
-print("Fill missing obs with 0s in hechms")
-fill_missing_obs_with_0s(model="hechms", timestep=5)
+print("Fill missing obs with 0s in hechms_input_rain")
+fill_missing_obs_with_0s(model="hechms_input_rain", timestep=5)
