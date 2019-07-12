@@ -72,7 +72,7 @@ def extract_content_from_old_raincell(existing_raincell, start, end, raincell_si
 
     with open(existing_raincell, 'r') as f:
         line = f.readline().split(' ')
-        timestep = line[0]
+        timestep = int(line[0])
         old_start_date = line[2]
         old_start_time = line[3]
         old_end_date = line[4]
@@ -139,7 +139,7 @@ def prepare_raincell_(raincell_file_path, start_time, end_time, target_model="fl
                     end_time.strftime(DATE_TIME_FORMAT))])
 
     if existing_raincell:
-        ex_rc_end = datetime.now() - timedelta(hours=6)
+        ex_rc_end = datetime.strptime(datetime.now().strftime('%Y-%m-%d %H:00:00'), DATE_TIME_FORMAT) - timedelta(hours=6)
         append_to_file(file_name=raincell_file_path, data=extract_content_from_old_raincell(
                 existing_raincell= existing_raincell, start=start_time, end=ex_rc_end, raincell_size=raincell_size))
         start_time = ex_rc_end
