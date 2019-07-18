@@ -80,6 +80,7 @@ def gen_rfield_d03(model, version):
         connection.close()
         print("Process finished")
 
+
 def usage():
     usageText = """
     Usage: ./gen_rfield_d03.py -m WRF_X -v vX
@@ -112,7 +113,7 @@ if __name__=="__main__":
             elif opt in ("-v", "--version"):
                 version = arg.strip()
 
-        # load conection parameters
+        # load connection parameters
         config = json.loads(open('/home/uwcc-admin/rfield_extractor/config.json').read())
 
         # connection params

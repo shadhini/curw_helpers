@@ -198,7 +198,7 @@ if __name__=="__main__":
             elif opt in ("-v", "--version"):
                 version = arg.strip()
 
-        # load conection parameters
+        # load connection parameters
         config = json.loads(open('/home/uwcc-admin/rfield_extractor/config.json').read())
 
         # connection params
