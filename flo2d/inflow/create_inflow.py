@@ -4,7 +4,7 @@ import traceback
 import json
 import os
 
-from db_adapter.base import  get_Pool, destroy_Pool
+from db_adapter.base import get_Pool, destroy_Pool
 from db_adapter.curw_fcst.station import get_hechms_stations
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -80,7 +80,7 @@ def get_obs_waterlevel(station_id, start):
         connection.close()
 
 
-def extract_fcst_discharge_ts(pool, start, end, station_ids):
+def extract_fcst_discharge_ts(pool, start, end, station_ids, sim_tag="hourly_run"):
 
     connection = pool.connection()
 
@@ -90,8 +90,8 @@ def extract_fcst_discharge_ts(pool, start, end, station_ids):
     try:
         with connection.cursor() as cursor1:
             sql_statement = "SELECT `id`, `station`, `start_date`, `end_date` FROM `run` " \
-                            "where `source`=11 and `variable`=3 and `unit`=3;"
-            cursor1.execute(sql_statement)
+                            "where `sim_tag`=%s and `source`=11 and `variable`=3 and `unit`=3;"
+            cursor1.execute(sql_statement, sim_tag)
             for result in cursor1:
                 fcst_ids[result.get('station')] = [result.get('id'), result.get('start_date'), result.get('end_date')]
 
@@ -101,10 +101,14 @@ def extract_fcst_discharge_ts(pool, start, end, station_ids):
             with connection.cursor() as cursor1:
                 sql_statement = "SELECT `time`, `value` FROM `data` where `id`=%s and `fgt`=%s " \
                                 "and `time` BETWEEN %s AND  %s;"
-                cursor1.execute(sql_statement, (tms_id, fgt, start, end))
+                rows = cursor1.execute(sql_statement, (tms_id, fgt, start, end))
                 timeseries = []
-                for result in cursor1:
-                    timeseries.append([result.get('time'), result.get('value')])
+                if rows > 0:
+                    results = cursor1.fetchall()
+                    for result in results:
+                        timeseries.append([result.get('time'), result.get('value')])
+                # for result in cursor1:
+                #     timeseries.append([result.get('time'), result.get('value')])
 
                 fcst_ts[station_id] = timeseries
 

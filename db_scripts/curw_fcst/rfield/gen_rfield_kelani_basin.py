@@ -59,23 +59,24 @@ def gen_rfield_d03_kelani_basin(model, version):
             start_time = result.get('start')
             end_time = result.get('end')
 
-        # Extract rfields
-        timestamp = start_time
-        while timestamp <= end_time :
-            # rfield = [['latitude', 'longitude', 'rainfall']]
-            rfield = []
-            with connection.cursor() as cursor2:
-                cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, timestamp))
-                results = cursor2.fetchall()
-                for result in results:
-                    rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
+        if end_time > (now + timedelta(days=1)):
+            # Extract rfields
+            timestamp = start_time
+            while timestamp <= end_time :
+                # rfield = [['latitude', 'longitude', 'rainfall']]
+                rfield = []
+                with connection.cursor() as cursor2:
+                    cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, timestamp))
+                    results = cursor2.fetchall()
+                    for result in results:
+                        rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
-            if timestamp < now:
-                write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
-            else:
-                write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                if timestamp < now:
+                    write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                else:
+                    write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
-            timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
+                timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
     except Exception as ex:
         traceback.print_exc()
