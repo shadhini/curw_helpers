@@ -32,7 +32,7 @@ def insert(originalfile,string):
     os.rename('newfile.txt',originalfile)
 
 
-def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
+def prepare_raincell(raincell_file_path, start_time, end_time,
                                 target_model="flo2d_250", interpolation_method="MME"):
     """
     Create raincell for flo2d
@@ -54,7 +54,17 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
         print("start_time should be less than end_time")
         exit(1)
 
-    max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'), DATE_TIME_FORMAT)
+    # find max end time
+    try:
+        with connection.cursor() as cursor0:
+            cursor0.callproc('get_ts_end', (target_model, interpolation_method))
+            max_end_time = cursor0.fetchone()['time']
+
+    except Exception as e:
+        traceback.print_exc()
+        max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'),
+                DATE_TIME_FORMAT)
+
     min_start_time = datetime.strptime("2019-06-28 00:00:00", DATE_TIME_FORMAT)
 
     if end_time > max_end_time:
@@ -117,7 +127,7 @@ def create_sim_hybrid_raincell(dir_path, run_date, run_time, forward, backward,
     raincell_file_path = os.path.join(dir_path, 'RAINCELL.DAT')
     if not os.path.isfile(raincell_file_path):
         print("{} start preparing raincell".format(datetime.now()))
-        prepare_raincell_5_min_step(raincell_file_path, target_model=flo2d_model, interpolation_method=calc_method, start_time=timeseries_start, end_time=timeseries_end)
+        prepare_raincell(raincell_file_path, target_model=flo2d_model, interpolation_method=calc_method, start_time=timeseries_start, end_time=timeseries_end)
         print("{} completed preparing raincell".format(datetime.now()))
     else:
         print('Raincell file already in path : ', raincell_file_path)

@@ -46,7 +46,7 @@ def check_time_format(time, model):
         exit(1)
 
 
-def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
+def prepare_raincell(raincell_file_path, start_time, end_time,
                                 target_model="flo2d_250", interpolation_method="MME"):
 
     """
@@ -69,7 +69,17 @@ def prepare_raincell_5_min_step(raincell_file_path, start_time, end_time,
         print("start_time should be less than end_time")
         exit(1)
 
-    max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'), DATE_TIME_FORMAT)
+    # find max end time
+    try:
+        with connection.cursor() as cursor0:
+            cursor0.callproc('get_ts_end', (target_model, interpolation_method))
+            max_end_time = cursor0.fetchone()['time']
+
+    except Exception as e:
+        traceback.print_exc()
+        max_end_time = datetime.strptime((datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 23:30:00'),
+                DATE_TIME_FORMAT)
+
     min_start_time = datetime.strptime("2019-06-28 00:00:00", DATE_TIME_FORMAT)
 
     if end_time > max_end_time:
@@ -181,7 +191,7 @@ if __name__=="__main__":
 
         if not os.path.isfile(raincell_file_path):
             print("{} start preparing raincell".format(datetime.now()))
-            prepare_raincell_5_min_step(raincell_file_path,
+            prepare_raincell(raincell_file_path,
                     target_model=flo2d_model, start_time=start_time, end_time=end_time)
             # print(raincell_file_path, flo2d_model, start_time, end_time)
             print("{} completed preparing raincell".format(datetime.now()))
