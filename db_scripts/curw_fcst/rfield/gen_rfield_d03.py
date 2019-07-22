@@ -68,9 +68,9 @@ def gen_rfield_d03(model, version):
                         rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
                 if timestamp < now:
-                    write_to_file('/var/www/html/wrf/{}/rfield/d03/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
                 else:
-                    write_to_file('/var/www/html/wrf/{}/rfield/d03/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
@@ -131,8 +131,8 @@ if __name__=="__main__":
             exit(1)
 
         try:
-            os.system("sudo rm /var/www/html/wrf/{}/rfield/d03/past/{}_{}_*".format(version, wrf_model, version))
-            os.system("sudo rm /var/www/html/wrf/{}/rfield/d03/future/{}_{}_*".format(version, wrf_model, version))
+            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_*".format(version, wrf_model, version))
+            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_*".format(version, wrf_model, version))
         except Exception as e:
             traceback.print_exc()
 

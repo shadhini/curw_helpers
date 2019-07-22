@@ -72,9 +72,9 @@ def gen_rfield_d03_kelani_basin(model, version):
                         rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
                 if timestamp < now:
-                    write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/kelani_basin/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
                 else:
-                    write_to_file('/var/www/html/wrf/{}/rfield/kelani_basin/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/kelani_basin/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
@@ -153,9 +153,9 @@ def gen_MME_rfield_d03_kelani_basin(model1, version1, model2, version2):
                 rfield = average_timeseries(temp_rfield)
 
                 if timestamp < now:
-                    write_to_file('/var/www/html/wrf/v4/rfield/kelani_basin/past/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/v4/rfield/kelani_basin/past/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
                 else:
-                    write_to_file('/var/www/html/wrf/v4/rfield/kelani_basin/future/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/v4/rfield/kelani_basin/future/WRF_MME_v4_{}_rfield.txt'.format(timestamp), rfield)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
@@ -217,8 +217,8 @@ if __name__=="__main__":
             exit(1)
 
         try:
-            os.system("sudo rm /var/www/html/wrf/{}/rfield/kelani_basin/past/{}_{}_*".format(version, wrf_model, version))
-            os.system("sudo rm /var/www/html/wrf/{}/rfield/kelani_basin/future/{}_{}_*".format(version, wrf_model, version))
+            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/kelani_basin/past/{}_{}_*".format(version, wrf_model, version))
+            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/kelani_basin/future/{}_{}_*".format(version, wrf_model, version))
         except Exception as e:
             traceback.print_exc()
 
@@ -229,3 +229,4 @@ if __name__=="__main__":
     except Exception as e:
         print('JSON config data loading error.')
         traceback.print_exc()
+

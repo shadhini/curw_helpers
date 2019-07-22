@@ -91,9 +91,12 @@ def extract_fcst_discharge_ts(pool, start, end, station_ids, sim_tag="hourly_run
         with connection.cursor() as cursor1:
             sql_statement = "SELECT `id`, `station`, `start_date`, `end_date` FROM `run` " \
                             "where `sim_tag`=%s and `source`=11 and `variable`=3 and `unit`=3;"
-            cursor1.execute(sql_statement, sim_tag)
-            for result in cursor1:
-                fcst_ids[result.get('station')] = [result.get('id'), result.get('start_date'), result.get('end_date')]
+            rows = cursor1.execute(sql_statement, sim_tag)
+            if rows > 0:
+                results = cursor1.fetchall()
+                for result in results:
+                    fcst_ids[result.get('station')] = [result.get('id'), result.get('start_date'),
+                                                       result.get('end_date')]
 
         for station_id in station_ids:
             tms_id = fcst_ids.get(station_id)[0]
