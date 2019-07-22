@@ -131,8 +131,8 @@ if __name__=="__main__":
             exit(1)
 
         try:
-            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_*".format(version, wrf_model, version))
-            os.system("sudo rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_*".format(version, wrf_model, version))
+            os.system("rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_*".format(version, wrf_model, version))
+            os.system("rm /mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_*".format(version, wrf_model, version))
         except Exception as e:
             traceback.print_exc()
 
