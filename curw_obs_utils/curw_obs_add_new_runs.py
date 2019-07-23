@@ -142,7 +142,7 @@ def insert_curw_obs_runs():
 
 
 def generate_curw_obs_hash_id(variable, unit, unit_type, latitude, longitude, run_name, station_type=None,
-                              station_name=None, description=None, append_description=False, update_run_name=False):
+                              station_name=None, description=None, append_description=True, update_run_name=True):
     if run_name not in ('A&T Labs', 'Leecom', 'CUrW IoT'):
         print("This function is dedicated for generating curw_obs hash ids only for 'A&T Labs', 'Leecom', 'CUrW IoT' "
               "weather stations")

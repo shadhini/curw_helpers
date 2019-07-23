@@ -147,19 +147,22 @@ def prepare_inflow(inflow_file_path, fcst_discharge_ts, obs_wl):
     write_to_file(inflow_file_path, data=inflow)
 
 
-if __name__=="__main__":
+def create_inflow(dir_path, run_date, run_time):
 
     try:
+        config_path = os.path.join(os.getcwd(), 'inflowdat', 'config.json')
+        config = json.loads(open(config_path).read())
 
-        config = json.loads(open('config.json').read())
+        start_date_time = datetime.strptime('%s %s' % (run_date, run_time), '%Y-%m-%d %H:%M:%S')
 
-        start = read_attribute_from_config_file('start_time', config, True)
-        end =  read_attribute_from_config_file('end_time', config, True)
+        start = (datetime.strptime(start_date_time.strftime('%Y-%m-%d 00:00:00'), '%Y-%m-%d %H:%M:%S') - timedelta(days=2))\
+            .strftime('%Y-%m-%d %H:%M:%S')
+        end = (datetime.strptime(start, '%Y-%m-%d %H:%M:%S') + timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
 
         target_stations = read_attribute_from_config_file('station_names', config, True)
 
-        output_dir = read_attribute_from_config_file('output_dir', config, True)
-        file_name = read_attribute_from_config_file('output_file_name', config, True)
+        output_dir = dir_path
+        file_name = 'INFLOW.DAT'
 
         pool = get_Pool(host=FCST_HOST, port=FCST_PORT, user=FCST_USER, password=FCST_PASSWORD, db=FCST_DB)
         hechms_stations = get_hechms_stations(pool=pool)
@@ -178,8 +181,8 @@ if __name__=="__main__":
         fcst_discharges = extract_fcst_discharge_ts(pool=pool, start=start, end=end, station_ids=target_station_ids)
 
         for id in target_station_ids:
-            file = '{}_{}'.format(id, file_name)
-            file_path = os.path.join(output_dir, file)
+            # file = '{}_{}'.format(id, file_name)
+            file_path = os.path.join(output_dir, file_name)
             prepare_inflow(inflow_file_path=file_path, fcst_discharge_ts=fcst_discharges.get(id), obs_wl=obs_wl)
 
     except Exception as e:
