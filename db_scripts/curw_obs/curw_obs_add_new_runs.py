@@ -1,7 +1,7 @@
 import traceback
 import csv
 
-# from db_adapter.constants import CURW_OBS_HOST, CURW_OBS_PORT, CURW_OBS_USERNAME, CURW_OBS_PASSWORD, CURW_OBS_DATABASE
+from db_adapter.constants import CURW_OBS_HOST, CURW_OBS_PORT, CURW_OBS_USERNAME, CURW_OBS_PASSWORD, CURW_OBS_DATABASE
 from db_adapter.base import get_Pool, destroy_Pool
 from db_adapter.curw_obs.station import StationEnum, get_station_id, add_station, update_description
 from db_adapter.curw_obs.variable import get_variable_id, add_variable
@@ -143,6 +143,22 @@ def insert_curw_obs_runs():
 
 def generate_curw_obs_hash_id(variable, unit, unit_type, latitude, longitude, run_name, station_type=None,
                               station_name=None, description=None, append_description=True, update_run_name=True):
+
+    """
+    Generate corresponding curw_obs hash id for a given curw observational station
+    :param variable: str: e.g. "Precipitation"
+    :param unit: str: e.g. "mm"
+    :param unit_type: str: e.g. "Accumulative"
+    :param latitude: float: e.g. 6.865576
+    :param longitude: float: e.g. 79.958181
+    :param run_name: str: e.g "A&T Labs"
+    :param station_type: str: enum:  'CUrW_WeatherStation' | 'CUrW_WaterLevelGauge'
+    :param station_name: str: "Urumewella"
+    :param description: str: "A&T Communication Box, Texas Standard Rain Gauge"
+    :param append_description: bool:
+    :param update_run_name: bool:
+    :return: new curw_obs hash id
+    """
     if run_name not in ('A&T Labs', 'Leecom', 'CUrW IoT'):
         print("This function is dedicated for generating curw_obs hash ids only for 'A&T Labs', 'Leecom', 'CUrW IoT' "
               "weather stations")
@@ -204,12 +220,12 @@ def generate_curw_obs_hash_id(variable, unit, unit_type, latitude, longitude, ru
         if station_id is None:
             add_station(pool=pool, name=station_name, latitude=latitude, longitude=longitude,
                     station_type=station_type)
-            update_description(description=description, append=False)
-
             station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude,
                     station_type=station_type)
+            update_description(pool=pool, id_=station_id, description=description, append=False)
+
         elif append_description:
-            update_description(description=description, append=True)
+            update_description(pool=pool, id_=station_id, description=description, append=True)
 
         TS = Timeseries(pool=pool)
 
@@ -234,8 +250,107 @@ def generate_curw_obs_hash_id(variable, unit, unit_type, latitude, longitude, ru
         destroy_Pool(pool=pool)
 
 
-def insert_timeseries(run_name=None):
-    return None
+def insert_timeseries(timeseries, end_date, tms_id):
+
+    """
+    Insert timeseries to curw_obs database
+    :param timeseries: list of [time, value] lists
+    :param end_date: str: timestamp of the latest data
+    :param tms_id: str: curw_obs timeseries (hash) id
+    :return:
+    """
+
+    new_timeseries = []
+    for t in [i for i in timeseries]:
+        if len(t) > 1:
+            # Insert EventId in front of timestamp, value list
+            t.insert(0, tms_id)
+            new_timeseries.append(t)
+        else:
+            print('Invalid timeseries data:: %s', t)
 
 
+    try:
+        # pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+        #         db=CURW_OBS_DATABASE)
+
+        pool = get_Pool(host=HOST, port=PORT, user=USERNAME, password=PASSWORD, db=DATABASE)
+
+        ts = Timeseries(pool=pool)
+
+        ts.insert_data(timeseries=new_timeseries, upsert=True)
+        ts.update_end_date(id_=tms_id, end_date=end_date)
+
+    except Exception as e:
+        traceback.print_exc()
+        print("Exception occurred while pushing timeseries for tms_id {} to curw_obs".format(tms_id))
+    finally:
+        destroy_Pool(pool)
+
+
+def update_run_name(run_name, tms_id):
+
+    try:
+        pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+                db=CURW_OBS_DATABASE)
+
+        ts = Timeseries(pool=pool)
+
+        ts.update_run_name(id_=tms_id, run_name=run_name)
+
+    except Exception as e:
+        traceback.print_exc()
+        print("Exception occurred while updating run name for tms_id {}.".format(tms_id))
+    finally:
+        destroy_Pool(pool)
+
+
+def update_station_description_by_id(station_id, description, append_description=True):
+
+    try:
+
+        pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+                db=CURW_OBS_DATABASE)
+
+        if append_description:
+            update_description(pool=pool, id_=station_id, description=description, append=True)
+        else:
+            update_description(pool=pool, id_=station_id, description=description, append=False)
+
+    except Exception as e:
+        traceback.print_exc()
+        print("Exception occurred while updating description for station id {}.".format(station_id))
+    finally:
+        destroy_Pool(pool)
+
+
+def update_station_description(station_name, latitude, longitude, station_type, description, append_description=True):
+    try:
+
+        pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+                db=CURW_OBS_DATABASE)
+
+        if station_type and station_type in (CURW_WATER_LEVEL_STATION, CURW_WEATHER_STATION):
+            station_type = StationEnum.getType(station_type)
+        else:
+            print("Station type cannot be recognized")
+            exit(1)
+
+        station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude, station_type=station_type)
+
+        if append_description:
+            update_description(pool=pool, id_=station_id, description=description, append=True)
+        else:
+            update_description(pool=pool, id_=station_id, description=description, append=False)
+
+    except Exception as e:
+        traceback.print_exc()
+        print("Exception occurred while updating description for station id {}.".format(station_id))
+    finally:
+        destroy_Pool(pool)
+
+
+############################
+# test #####################
+############################
 
