@@ -1,5 +1,6 @@
 import traceback
 import csv
+from datetime import datetime, timedelta
 
 from db_adapter.constants import CURW_OBS_HOST, CURW_OBS_PORT, CURW_OBS_USERNAME, CURW_OBS_PASSWORD, CURW_OBS_DATABASE
 from db_adapter.base import get_Pool, destroy_Pool
@@ -142,7 +143,7 @@ def insert_curw_obs_runs():
 
 
 def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitude, run_name, station_type=None,
-                              station_name=None, description=None, append_description=True, update_run_name=True,
+                              station_name=None, description=None, append_description=True, update_runname=True,
                               start_date=None):
 
     """
@@ -170,9 +171,11 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
 
     try:
 
+        lat = '%.6f' % float(latitude)
+        lon = '%.6f' % float(longitude)
         meta_data = {
-                'run_name' : run_name, 'variable': variable, 'unit': unit, 'unit_type': unit_type, 'latitude': latitude,
-                'longitude': longitude
+                'run_name' : run_name, 'unit': unit, 'unit_type': unit_type,
+                'latitude': lat, 'longitude': lon
                 }
 
         # run_name = run_name
@@ -186,6 +189,8 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
 
         if variable == "Waterlevel":
             variable = "WaterLevel"
+
+        meta_data['variable'] = variable
 
         if station_type and station_type in (CURW_WATER_LEVEL_STATION, CURW_WEATHER_STATION):
             station_type = StationEnum.getType(station_type)
@@ -209,12 +214,12 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
             add_variable(pool=pool, variable=variable)
             variable_id = get_variable_id(pool=pool, variable=variable)
 
-        station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude, station_type=station_type)
+        station_id = get_station_id(pool=pool, latitude=lat, longitude=lon, station_type=station_type)
 
         if station_id is None:
-            add_station(pool=pool, name=station_name, latitude=latitude, longitude=longitude,
+            add_station(pool=pool, name=station_name, latitude=lat, longitude=lon,
                     station_type=station_type)
-            station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude,
+            station_id = get_station_id(pool=pool, latitude=lat, longitude=lon,
                     station_type=station_type)
             if description:
                 update_description(pool=pool, id_=station_id, description=description, append=False)
@@ -238,7 +243,7 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
             if start_date:
                 TS.update_start_date(id_=tms_id, start_date=start_date)
 
-        if update_run_name:
+        if update_runname:
             TS.update_run_name(id_=tms_id, run_name=run_name)
 
         return tms_id
@@ -248,7 +253,7 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
         print("Exception occurred while inserting run entries to curw_obs run table and making hash mapping")
 
 
-def insert_timeseries(pool, timeseries, end_date, tms_id):
+def insert_timeseries(pool, timeseries, tms_id, end_date=None):
 
     """
     Insert timeseries to curw_obs database
@@ -258,7 +263,6 @@ def insert_timeseries(pool, timeseries, end_date, tms_id):
     :param tms_id: str: curw_obs timeseries (hash) id
     :return:
     """
-
     new_timeseries = []
     for t in [i for i in timeseries]:
         if len(t) > 1:
@@ -267,6 +271,9 @@ def insert_timeseries(pool, timeseries, end_date, tms_id):
             new_timeseries.append(t)
         else:
             print('Invalid timeseries data:: %s', t)
+
+    if end_date is None:
+        end_date = new_timeseries[-1][1]
 
     try:
 
@@ -280,7 +287,7 @@ def insert_timeseries(pool, timeseries, end_date, tms_id):
         print("Exception occurred while pushing timeseries for tms_id {} to curw_obs".format(tms_id))
 
 
-def update_run_name(pool, run_name, tms_id):
+def update_ts_run_name(pool, run_name, tms_id):
 
     try:
 
@@ -308,6 +315,10 @@ def update_station_description_by_id(pool, station_id, description, append_descr
 
 
 def update_station_description(pool, latitude, longitude, station_type, description, append_description=True):
+
+    lat = '%.6f' % float(latitude)
+    lon = '%.6f' % float(longitude)
+
     try:
 
         if station_type and station_type in (CURW_WATER_LEVEL_STATION, CURW_WEATHER_STATION):
@@ -316,7 +327,7 @@ def update_station_description(pool, latitude, longitude, station_type, descript
             print("Station type cannot be recognized")
             exit(1)
 
-        station_id = get_station_id(pool=pool, latitude=latitude, longitude=longitude, station_type=station_type)
+        station_id = get_station_id(pool=pool, latitude=lat, longitude=lon, station_type=station_type)
 
         if append_description:
             update_description(pool=pool, id_=station_id, description=description, append=True)
@@ -341,13 +352,12 @@ if __name__=="__main__":
         pool = get_Pool(host=HOST, port=PORT, user=USERNAME, password=PASSWORD, db=DATABASE)
 
         curw_old_obs_entries = read_csv('all_curw_obs.csv')
-
-        timeseries = [["2019-07-23 00:00:00", 0.563], ["2019-07-23 01:00:00", 0.563], ["2019-07-23 02:00:00", 0.563],
-                      ["2019-07-23 03:00:00", 0.563]]
-
+        count = 0
         for old_index in range(len(curw_old_obs_entries)):
-
+            count +=1
             old_hash_id = curw_old_obs_entries[old_index][0]
+            print(datetime.now(), count, old_hash_id)
+
             run_name = curw_old_obs_entries[old_index][1]
             station_name = curw_old_obs_entries[old_index][4]
             latitude = curw_old_obs_entries[old_index][5]
@@ -357,10 +367,14 @@ if __name__=="__main__":
             unit = curw_old_obs_entries[old_index][9]
             unit_type = curw_old_obs_entries[old_index][10]
 
-            tms_id = generate_curw_obs_hash_id(pool=pool, variable=variable, unit=unit, unit_type=unit_type, latitude=latitude,
-                    longitude=longitude, run_name=run_name, station_name=station_name, description=description, start_date=timeseries[0][0])
+            ts = [["2019-07-23 00:00:00", 0.563], ["2019-07-23 01:00:00", 0.563], ["2019-07-23 02:00:00", 0.563],
+                  ["2019-07-23 03:00:00", 0.563]]
 
-            insert_timeseries(pool=pool, timeseries=timeseries, tms_id=tms_id)
+            tms_id = generate_curw_obs_hash_id(pool=pool, variable=variable, unit=unit, unit_type=unit_type, latitude=latitude,
+                    longitude=longitude, run_name=run_name, station_name=station_name, description=description, start_date=ts[0][0])
+
+            if tms_id is not None:
+                insert_timeseries(pool=pool, timeseries=ts, tms_id=tms_id)
 
     except Exception:
         traceback.print_exc()
