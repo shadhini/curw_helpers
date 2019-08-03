@@ -30,8 +30,7 @@ then
 fi
 
 
-# Update grid mappings in curw_sim
-echo "Running update_grid_maps.py"
+| grep echo "Running update_grid_maps.py"
 python update_grid_maps.py >> curw_sim_grid.log 2>&1
 
 # Deactivating virtual environment

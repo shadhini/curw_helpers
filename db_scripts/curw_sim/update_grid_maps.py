@@ -5,6 +5,7 @@ from db_adapter.curw_sim.grids import add_obs_to_d03_grid_mappings_for_rainfall,
     add_flo2d_initial_conditions, get_flo2d_initial_conditions, \
     GridInterpolationEnum
 from db_adapter.constants import CURW_SIM_HOST, CURW_SIM_PORT, CURW_SIM_USERNAME, CURW_SIM_PASSWORD, CURW_SIM_DATABASE
+from db_adapter.curw_sim.constants import FLO2D_250, FLO2D_150, HecHMS
 
 print(" Add obs to d03 grid mappings")
 
@@ -34,8 +35,13 @@ try:
     # add_obs_to_d03_grid_mappings_for_rainfall(pool=pool, grid_interpolation=grid_interpolation_method)
     # print("{} rainfall observed station grids added".format(len(get_obs_to_d03_grid_mappings_for_rainfall(pool=pool, grid_interpolation=grid_interpolation_method).keys())))
 
+    print("Add flo2d 250 initial conditions")
+    add_flo2d_initial_conditions(pool=pool, flo2d_model=FLO2D_250)
+    print("{} initial conditions added".format(len(get_flo2d_initial_conditions(pool=pool, flo2d_model=FLO2D_250))))
+
     print("Add flo2d 150 initial conditions")
-    add_flo2d_initial_conditions(pool=pool, flo2d_model='flo2d_150')
+    add_flo2d_initial_conditions(pool=pool, flo2d_model=FLO2D_150)
+    print("{} initial conditions added".format(len(get_flo2d_initial_conditions(pool=pool, flo2d_model=FLO2D_150))))
 
     destroy_Pool(pool=pool)
 except Exception as e:
