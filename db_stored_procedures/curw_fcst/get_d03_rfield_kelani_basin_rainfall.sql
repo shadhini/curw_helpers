@@ -1,6 +1,7 @@
 CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_d03_rfield_kelani_basin_rainfall`(
 IN model VARCHAR(25),
 IN version VARCHAR(25),
+IN sim_tag VARCHAR(100),
 IN time DATETIME
 )
 BEGIN
@@ -29,7 +30,7 @@ FROM
     FROM
         curw_fcst.run
     WHERE
-        curw_fcst.run.sim_tag = 'evening_18hrs'
+        curw_fcst.run.sim_tag = sim_tag
             AND curw_fcst.run.variable = 1
             AND curw_fcst.run.unit = 1
             AND curw_fcst.run.source = @sourceID) AS run_selcted ON curw_fcst.run_selcted.station_id = curw_fcst.station_selected.id
