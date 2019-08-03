@@ -39,7 +39,7 @@ def write_to_file(file_name, data):
 # Raw WRF RFIELD GENERATION #
 #############################
 
-def gen_rfield_d03_kelani_basin(model, version):
+def gen_rfield_d03_kelani_basin(model, version, sim_tag="evening_18hrs"):
 
     # Connect to the database
     connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
@@ -66,7 +66,7 @@ def gen_rfield_d03_kelani_basin(model, version):
                 # rfield = [['latitude', 'longitude', 'rainfall']]
                 rfield = []
                 with connection.cursor() as cursor2:
-                    cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, timestamp))
+                    cursor2.callproc('get_d03_rfield_kelani_basin_rainfall', (model, version, sim_tag, timestamp))
                     results = cursor2.fetchall()
                     for result in results:
                         rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
