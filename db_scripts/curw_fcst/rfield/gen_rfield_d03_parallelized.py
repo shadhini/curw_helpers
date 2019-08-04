@@ -1,3 +1,4 @@
+#!~/rfield_extractor/venv/bin/python3
 import traceback
 import pymysql
 import json
