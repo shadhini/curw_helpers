@@ -38,7 +38,7 @@ def write_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
-def gen_rfield_d03(model, version, sim_tag):
+def gen_rfield_d03(wrf_model, version, sim_tag):
 
     #         os.system("rm /mnt/disks/wrf_nfs/wrf/{}/rfield/{}/d03/past/{}_{}_*".format(version, sim_tag, wrf_model, version))
     # remove outdated rfield files
@@ -61,7 +61,7 @@ def gen_rfield_d03(model, version, sim_tag):
 
         # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
-            cursor1.callproc('get_TS_start_end', (model, version))
+            cursor1.callproc('get_TS_start_end', (wrf_model, version))
             result = cursor1.fetchone()
             start_time = result.get('start')
             end_time = result.get('end')
@@ -73,15 +73,15 @@ def gen_rfield_d03(model, version, sim_tag):
                 # rfield = [['latitude', 'longitude', 'rainfall']]
                 rfield = []
                 with connection.cursor() as cursor2:
-                    cursor2.callproc('get_d03_rfield', (model, version, sim_tag, timestamp))
+                    cursor2.callproc('get_d03_rfield', (wrf_model, version, sim_tag, timestamp))
                     results = cursor2.fetchall()
                     for result in results:
                         rfield.append('{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
 
                 if timestamp < now:
-                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past/{}_{}_{}_rfield.txt'.format(version, wrf_model, version, timestamp), rfield)
                 else:
-                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_{}_rfield.txt'.format(version, model, version, timestamp), rfield)
+                    write_to_file('/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future/{}_{}_{}_rfield.txt'.format(version, wrf_model, version, timestamp), rfield)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
