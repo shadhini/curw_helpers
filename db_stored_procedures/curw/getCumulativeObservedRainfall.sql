@@ -1,11 +1,11 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getCumulativeObservedRainfall`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getCumulativeObservedRainfall`(
 IN startTime DATETIME,
 IN endTime DATETIME
 )
 BEGIN
 	SELECT  grids_selected.longitude, grids_selected.latitude, sum(curw.data.value) as value
     FROM
-	(SELECT longitude, latitude, observed.id
+	(SELECT longitude, latitude, observed.id, observed.station
     FROM
 		(SELECT id, station 
 			FROM curw.run 
@@ -17,6 +17,6 @@ BEGIN
 		LEFT JOIN
 			curw.data ON grids_selected.id = curw.data.id
 		WHERE
-			curw.data.time BETWEEN startTime AND endTime
-		GROUP BY grids_selected.longitude, grids_selected.latitude;
+			curw.data.time between startTime and endTime
+		GROUP BY grids_selected.station;
 END
