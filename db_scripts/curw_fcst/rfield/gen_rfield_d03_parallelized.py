@@ -62,7 +62,7 @@ def gen_rfield_d03(wrf_model, version, sim_tag):
 
         # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
-            cursor1.callproc('get_TS_start_end', (wrf_model, version))
+            cursor1.callproc('get_TS_start_end', (wrf_model, version, sim_tag))
             result = cursor1.fetchone()
             start_time = result.get('start')
             end_time = result.get('end')
