@@ -5,7 +5,8 @@ IN station_id INT(11),
 IN sim_tag VARCHAR(100),
 IN t1 DATETIME,
 IN t2 DATETIME,
-IN lead_time TIME
+IN lead_time1 TIME,
+IN lead_time2 TIME
 -- IN h1 DECIMAL(8,3),
 -- IN h2 DECIMAL(8,3)
 )
@@ -24,6 +25,6 @@ FROM
 WHERE
     curw_fcst.data.id = @tmsID
         AND curw_fcst.data.time BETWEEN t1 AND t2
-        AND TIMEDIFF(curw_fcst.data.time, curw_fcst.data.fgt) > lead_time
+        AND TIMEDIFF(curw_fcst.data.time, curw_fcst.data.fgt) between lead_time1 AND lead_time2
 ORDER BY time , lead;
 END

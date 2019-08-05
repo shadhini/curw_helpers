@@ -1,11 +1,12 @@
 CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_TS_start_end`(
 IN model VARCHAR(25),
-IN version VARCHAR(25)
+IN version VARCHAR(25),
+IN sim_tag VARCHAR(100)
 )
 BEGIN
 SET @sourceID = (SELECT curw_fcst.source.id FROM curw_fcst.source WHERE curw_fcst.source.model = model and curw_fcst.source.version = version);
-SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID limit 1);
-SET @random_id = (SELECT curw_fcst.run.id FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID limit 1);
+SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID AND curw_fcst.run.sim_tag=sim_tag limit 1);
+SET @random_id = (SELECT curw_fcst.run.id FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID AND curw_fcst.run.sim_tag=sim_tag limit 1);
 
 SELECT 
     MIN(curw_fcst.data.time) AS start,

@@ -4,9 +4,9 @@ IN time DATETIME
 )
 BEGIN
 	SELECT
-	fgt,
-    abs(fgt- time) as gap
+	temp.fgt,
+    (time - temp.fgt) as gap
 	FROM 
-    (select distinct fgt from data where fgt < time and id=id) as temp
+    (select distinct curw_fcst.data.fgt as fgt from curw_fcst.data where curw_fcst.data.id=id and curw_fcst.data.fgt < time) as temp
     order by gap limit 10;
 END
