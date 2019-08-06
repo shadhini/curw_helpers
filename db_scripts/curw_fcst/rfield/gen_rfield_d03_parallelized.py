@@ -163,7 +163,7 @@ if __name__=="__main__":
 
         future_rfield_home = "/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future".format(version)
         try:
-            os.makedirs(past_rfield_home)
+            os.makedirs(future_rfield_home)
         except FileExistsError:
             # directory already exists
             pass
