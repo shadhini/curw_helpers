@@ -154,6 +154,20 @@ if __name__=="__main__":
             usage()
             exit(1)
 
+        past_rfield_home = "/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/past".format(version)
+        try:
+            os.makedirs(past_rfield_home)
+        except FileExistsError:
+            # directory already exists
+            pass
+
+        future_rfield_home = "/mnt/disks/wrf_nfs/wrf/{}/rfield/d03/future".format(version)
+        try:
+            os.makedirs(past_rfield_home)
+        except FileExistsError:
+            # directory already exists
+            pass
+
         mp_pool = mp.Pool(mp.cpu_count())
 
         results = mp_pool.starmap_async(gen_rfield_d03,
