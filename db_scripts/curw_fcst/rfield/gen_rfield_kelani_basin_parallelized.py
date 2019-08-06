@@ -1,3 +1,4 @@
+#!/home/uwcc-admin/rfield_extractor/venv/bin/python3
 import traceback
 import pymysql
 import json
@@ -15,7 +16,7 @@ DB =""
 PORT = ""
 
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
-VALID_VERSIONS = ["v3", "v4"]
+VALID_VERSIONS = ["v3", "v4", "4.0"]
 SIM_TAGS = ["evening_18hrs"]
 
 
@@ -52,9 +53,6 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag):
     except Exception as e:
         traceback.print_exc()
 
-    # Connect to the database
-    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
-            cursorclass=pymysql.cursors.DictCursor)
 
     start_time = ''
     end_time = ''
@@ -62,6 +60,9 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag):
     now = datetime.strptime((datetime.now()+timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d 00:00:00'), '%Y-%m-%d %H:%M:%S')
 
     try:
+        # Connect to the database
+        connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
+                                     cursorclass=pymysql.cursors.DictCursor)
 
         # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
@@ -110,6 +111,7 @@ def usage():
 
 if __name__=="__main__":
 
+    my_pool = None
     try:
 
         wrf_models = None
@@ -132,6 +134,9 @@ if __name__=="__main__":
                 version = arg.strip()
             elif opt in ("-s", "--sim_tag"):
                 sim_tag = arg.strip()
+
+        print(wrf_models, version, sim_tag)
+        print(VALID_MODELS, VALID_VERSIONS, SIM_TAGS)
 
         # load connection parameters
         config = json.loads(open('/home/uwcc-admin/rfield_extractor/config.json').read())
@@ -169,7 +174,8 @@ if __name__=="__main__":
         print('JSON config data loading error.')
         traceback.print_exc()
     finally:
-        mp_pool.close()
+        if my_pool is not None:
+            mp_pool.close()
 
 
 

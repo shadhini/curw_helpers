@@ -1,4 +1,4 @@
-#!~/rfield_extractor/venv/bin/python3
+#!/home/uwcc-admin/rfield_extractor/venv/bin/python3
 import traceback
 import pymysql
 import json
@@ -107,6 +107,8 @@ def usage():
 
 if __name__=="__main__":
 
+    mp_pool = None
+
     try:
         wrf_models = None
         version = None
@@ -163,6 +165,7 @@ if __name__=="__main__":
         print('JSON config data loading error.')
         traceback.print_exc()
     finally:
-        mp_pool.close()
+        if mp_pool is not None:
+            mp_pool.close()
 
 
