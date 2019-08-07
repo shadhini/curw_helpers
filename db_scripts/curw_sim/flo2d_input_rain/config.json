@@ -1,4 +1,3 @@
 {
-  "model": "WRF_C",
-  "version": "v4"
+  "model_list": [["WRF_SE","v4"]]
 }

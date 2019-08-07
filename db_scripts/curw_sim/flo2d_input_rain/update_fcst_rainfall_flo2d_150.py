@@ -24,7 +24,7 @@ def read_attribute_from_config_file(attribute, config):
 if __name__=="__main__":
     try:
 
-        config = json.loads(open('config.json').read())
+        config = json.loads(open('MME_config.json').read())
 
         # source details
         model_list = read_attribute_from_config_file('model_list', config)
