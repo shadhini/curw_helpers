@@ -151,7 +151,7 @@ if __name__=="__main__":
 
     try:
 
-        config = json.loads(open('config.json').read())
+        config = json.loads(open('MME_config.json').read())
 
         start = read_attribute_from_config_file('start_time', config, True)
         end =  read_attribute_from_config_file('end_time', config, True)

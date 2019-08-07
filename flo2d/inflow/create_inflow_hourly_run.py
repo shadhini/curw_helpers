@@ -150,7 +150,7 @@ def prepare_inflow(inflow_file_path, fcst_discharge_ts, obs_wl):
 def create_inflow(dir_path, run_date, run_time):
 
     try:
-        config_path = os.path.join(os.getcwd(), 'inflowdat', 'config.json')
+        config_path = os.path.join(os.getcwd(), 'inflowdat', 'MME_config.json')
         config = json.loads(open(config_path).read())
 
         start_date_time = datetime.strptime('%s %s' % (run_date, run_time), '%Y-%m-%d %H:%M:%S')
