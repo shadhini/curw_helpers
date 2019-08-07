@@ -1,0 +1,2 @@
+populate curw_sim to create rain.dat for 10m models (thee are around 10 catchments)
+for each model find nearest obs station and forecast station
