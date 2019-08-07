@@ -109,7 +109,7 @@ if __name__=="__main__":
 
     try:
 
-        config = json.loads(open('config.json').read())
+        config = json.loads(open('MME_config.json').read())
 
         # connection params
         HOST = read_attribute_from_config_file('host', config)

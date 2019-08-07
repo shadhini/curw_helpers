@@ -139,7 +139,7 @@ if __name__=="__main__":
         print(VALID_MODELS, VALID_VERSIONS, SIM_TAGS)
 
         # load connection parameters
-        config = json.loads(open('/home/uwcc-admin/rfield_extractor/config.json').read())
+        config = json.loads(open('/home/uwcc-admin/rfield_extractor/MME_config.json').read())
 
         # connection params
         HOST = read_attribute_from_config_file('host', config)
