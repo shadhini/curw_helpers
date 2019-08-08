@@ -34,8 +34,7 @@ def read_csv(file_name):
 
 
 def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitude, run_name, station_type=None,
-                              station_name=None, description=None, append_description=True, update_runname=True,
-                              start_date=None):
+                              station_name=None, description=None, append_description=True, start_date=None):
 
     """
     Generate corresponding curw_obs hash id for a given curw observational station
@@ -50,7 +49,6 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
     :param station_name: str: "Urumewella"
     :param description: str: "A&T Communication Box, Texas Standard Rain Gauge"
     :param append_description: bool:
-    :param update_run_name: bool:
     :param start_date: str: e.g."2019-07-01 00:00:00" ; the timestamp of the very first entry of the timeseries
 
     :return: new curw_obs hash id
@@ -65,7 +63,7 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
         lat = '%.6f' % float(latitude)
         lon = '%.6f' % float(longitude)
         meta_data = {
-                'run_name' : run_name, 'unit': unit, 'unit_type': unit_type,
+                'unit': unit, 'unit_type': unit_type,
                 'latitude': lat, 'longitude': lon
                 }
 
@@ -125,9 +123,6 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
             if start_date:
                 TS.update_start_date(id_=tms_id, start_date=start_date)
 
-        if update_runname:
-            TS.update_run_name(id_=tms_id, run_name=run_name)
-
         return tms_id
 
     except Exception:
@@ -167,19 +162,6 @@ def insert_timeseries(pool, timeseries, tms_id, end_date=None):
     except Exception as e:
         traceback.print_exc()
         print("Exception occurred while pushing timeseries for tms_id {} to curw_obs".format(tms_id))
-
-
-def update_ts_run_name(pool, run_name, tms_id):
-
-    try:
-
-        ts = Timeseries(pool=pool)
-
-        ts.update_run_name(id_=tms_id, run_name=run_name)
-
-    except Exception as e:
-        traceback.print_exc()
-        print("Exception occurred while updating run name for tms_id {}.".format(tms_id))
 
 
 def update_station_description_by_id(pool, station_id, description, append_description=True):
@@ -240,7 +222,7 @@ if __name__=="__main__":
             old_hash_id = curw_old_obs_entries[old_index][0]
             print(datetime.now(), count, old_hash_id)
 
-            run_name = curw_old_obs_entries[old_index][1]
+            # run_name = curw_old_obs_entries[old_index][1]
             station_name = curw_old_obs_entries[old_index][4]
             latitude = curw_old_obs_entries[old_index][5]
             longitude = curw_old_obs_entries[old_index][6]
@@ -253,7 +235,7 @@ if __name__=="__main__":
                   ["2019-07-23 03:00:00", 0.563]]
 
             tms_id = generate_curw_obs_hash_id(pool=pool, variable=variable, unit=unit, unit_type=unit_type, latitude=latitude,
-                    longitude=longitude, run_name=run_name, station_name=station_name, description=description, start_date=ts[0][0])
+                    longitude=longitude, station_name=station_name, description=description, start_date=ts[0][0])
 
             if tms_id is not None:
                 insert_timeseries(pool=pool, timeseries=ts, tms_id=tms_id)
