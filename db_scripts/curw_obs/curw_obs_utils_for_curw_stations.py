@@ -18,6 +18,7 @@ DATABASE = "curw_obs"
 
 CURW_WEATHER_STATION = 'CUrW_WeatherStation'
 CURW_WATER_LEVEL_STATION = 'CUrW_WaterLevelGauge'
+CURW_CROSS_SECTION = 'CUrW_CrossSection'
 
 
 def read_csv(file_name):
@@ -33,8 +34,8 @@ def read_csv(file_name):
     return data
 
 
-def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitude, run_name, station_type=None,
-                              station_name=None, description=None, append_description=True, start_date=None):
+def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitude, station_type=None,
+                              station_name=None, description=None, append_description=False, start_date=None):
 
     """
     Generate corresponding curw_obs hash id for a given curw observational station
@@ -44,8 +45,7 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
     :param unit_type: str: e.g. "Accumulative"
     :param latitude: float: e.g. 6.865576
     :param longitude: float: e.g. 79.958181
-    :param run_name: str: e.g "A&T Labs"
-    :param station_type: str: enum:  'CUrW_WeatherStation' | 'CUrW_WaterLevelGauge'
+    :param station_type: str: enum:  'CUrW_WeatherStation' | 'CUrW_WaterLevelGauge' | 'CUrW_CrossSection'
     :param station_name: str: "Urumewella"
     :param description: str: "A&T Communication Box, Texas Standard Rain Gauge"
     :param append_description: bool:
@@ -53,10 +53,10 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
 
     :return: new curw_obs hash id
     """
-    if run_name not in ('A&T Labs', 'Leecom', 'CUrW IoT'):
-        print("This function is dedicated for generating curw_obs hash ids only for 'A&T Labs', 'Leecom', 'CUrW IoT' "
-              "weather stations")
-        exit(1)
+    # if run_name not in ('A&T Labs', 'Leecom', 'CUrW IoT'):
+    #     print("This function is dedicated for generating curw_obs hash ids only for 'A&T Labs', 'Leecom', 'CUrW IoT' "
+    #           "weather stations")
+    #     exit(1)
 
     try:
 
@@ -72,11 +72,13 @@ def generate_curw_obs_hash_id(pool, variable, unit, unit_type, latitude, longitu
 
         meta_data['variable'] = variable
 
-        if station_type and station_type in (CURW_WATER_LEVEL_STATION, CURW_WEATHER_STATION):
+        if station_type and station_type in (CURW_WATER_LEVEL_STATION, CURW_WEATHER_STATION, CURW_CROSS_SECTION):
             station_type = StationEnum.getType(station_type)
         else:
             if variable=="WaterLevel":
                 station_type = StationEnum.CUrW_WaterLevelGauge
+            elif variable=="CrossSection":
+                station_type = StationEnum.CUrW_CrossSection
             else:
                 station_type = StationEnum.CUrW_WeatherStation
 
