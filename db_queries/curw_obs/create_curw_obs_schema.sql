@@ -15,7 +15,7 @@ CREATE TABLE `unit` (
 
 CREATE TABLE `station` (
   `id` int(11) NOT NULL,
-  `station_type` varchar(45) NOT NULL,
+  `station_type` enum('CUrW_WeatherStation', 'CUrW_WaterLevelGauge', 'CUrW_CrossSection', 'Public', 'Other') NOT NULL,
   `name` varchar(45) DEFAULT NULL,
   `latitude` decimal(9,6) NOT NULL,
   `longitude` decimal(9,6) NOT NULL,
@@ -33,7 +33,6 @@ CREATE TABLE `run` (
   `unit` int(11) NOT NULL,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
-  `run_name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `run_ibfk_1_idx` (`station`),
