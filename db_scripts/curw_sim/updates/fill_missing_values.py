@@ -18,7 +18,59 @@ FLO2D_150 = "flo2d_150"
 FLO2D_30 = "flo2d_30"
 HecHMS = "hechms"
 
-OPTIONS = ['OBS', 'FCST']
+OPTIONS = ['OBS', 'FCST', 'CHECK']
+
+
+def check_for_missing_values(start, end, model):
+
+    # Connect to the database
+    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
+            cursorclass=pymysql.cursors.DictCursor)
+
+    print("Connected to database")
+
+    if model == FLO2D_250:
+        timestep = 5
+    elif model == FLO2D_150:
+        timestep = 15
+    elif model == HecHMS:
+        timestep = 5
+    elif model == FLO2D_30:
+        timestep = 15
+
+    start = datetime.strptime(start, DATE_TIME_FORMAT)
+    end = datetime.strptime(end, DATE_TIME_FORMAT)
+
+    expected_count = int(((end-start).total_seconds()/60)/timestep)
+
+    ids = []
+
+    try:
+        expected_obs_end = (datetime.now() - timedelta(hours=6)).strftime('%Y-%m-%d')
+        with connection.cursor() as cursor1:
+            sql_statement = "select `id` from `run` where `model`=%s " \
+                            "and (`obs_end` is null or `obs_end` < %s);"
+            cursor1.execute(sql_statement, (model, expected_obs_end))
+            results = cursor1.fetchall()
+            for result in results:
+                ids.append([result.get('id')])
+
+        for id in ids:
+            with connection.cursor() as cursor2:
+                sql_statement = "select count(`time`) as `count` from `data` where id=%s and `time`>%s and `time`<=%s;"
+                cursor2.execute(sql_statement, (id, start, end))
+                count = cursor2.fetchone()['count']
+
+            if count < expected_count:
+                print(id)
+                print("{} timesteps are missing".format(str(expected_count-count)))
+
+
+    except Exception as ex:
+        traceback.print_exc()
+    finally:
+        connection.close()
+        print("{} process completed".format(datetime.now()))
 
 
 def fill_missing_obs_with_0s(start, end, model):
@@ -48,7 +100,7 @@ def fill_missing_obs_with_0s(start, end, model):
         expected_obs_end = (datetime.now() - timedelta(hours=6)).strftime('%Y-%m-%d')
         with connection.cursor() as cursor1:
             sql_statement = "select `id` from `run` where `model`=%s " \
-                            "and `obs_end` is null or `obs_end` < %s;"
+                            "and (`obs_end` is null or `obs_end` < %s);"
             cursor1.execute(sql_statement, (model, expected_obs_end))
             results = cursor1.fetchall()
             for result in results:
@@ -85,7 +137,7 @@ def fill_missing_obs_with_0s(start, end, model):
 
 def fill_missing_fcsts(end, model):
 
-    # Connect to the database
+    #Connect to the database
     connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
             cursorclass=pymysql.cursors.DictCursor)
 
@@ -238,6 +290,16 @@ if __name__=="__main__":
                 check_time_format(time=start_time, model=model)
 
             fill_missing_obs_with_0s(start=start_time, end=end_time, model=model)
+
+        ################################################
+        # Check whether  #
+        ################################################
+        elif option == OPTIONS[2]:
+            if start_time is None:
+                print("You haven't specified the start time")
+                exit(1)
+
+            check_for_missing_values(start=start_time, end=end_time, model=model)
 
     except Exception:
         traceback.print_exc()
