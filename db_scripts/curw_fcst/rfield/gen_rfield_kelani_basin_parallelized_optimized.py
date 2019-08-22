@@ -89,7 +89,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag):
 
             while timestamp <= end_time:
                 create_rfield(connection=connection, wrf_model=wrf_model, version=version, sim_tag=sim_tag,
-                              timestamp=timestamp, past_or_future="future")
+                              timestamp=timestamp)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
