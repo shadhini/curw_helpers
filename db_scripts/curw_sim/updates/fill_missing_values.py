@@ -48,9 +48,10 @@ def check_for_missing_values(start, end, model):
     try:
         expected_obs_end = (datetime.now() - timedelta(hours=6)).strftime('%Y-%m-%d')
         with connection.cursor() as cursor1:
-            sql_statement = "select `id` from `run` where `model`=%s " \
-                            "and (`obs_end` is null or `obs_end` < %s);"
-            cursor1.execute(sql_statement, (model, expected_obs_end))
+            sql_statement = "select `id` from `run` where `model`=%s;" # " \
+                            # "and (`obs_end` is null or `obs_end` < %s);"
+            cursor1.execute(sql_statement, model)
+            # cursor1.execute(sql_statement, (model, expected_obs_end))
             results = cursor1.fetchall()
             for result in results:
                 ids.append([result.get('id')])
