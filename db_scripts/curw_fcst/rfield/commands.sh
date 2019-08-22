@@ -5,7 +5,7 @@ chmod +x venv
 
 nohup ./rfield_extractor/gen_rfield_kelani_basin_parallelized_optimized_with_past_future.py -m "WRF_A,WRF_C,WRF_E,WRF_SE" -v "4.0" -s evening_18hrs 2>&1 /home/uwcc-admin/rfield_extractor/rfield.log
 
-
+tar -czvf ~/Desktop/rfield.tar.gz *
 
 
 # working parallelized

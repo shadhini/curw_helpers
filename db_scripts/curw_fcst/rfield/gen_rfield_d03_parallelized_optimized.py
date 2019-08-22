@@ -5,6 +5,7 @@ import json
 import sys
 import getopt
 import os
+import re
 import multiprocessing as mp
 from datetime import datetime, timedelta
 
@@ -20,6 +21,7 @@ VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
 SIM_TAGS = ["evening_18hrs"]
 root_directory = '/var/www/html'
+bucket_root = '/mnt/disks/wrf_nfs'
 
 
 def read_attribute_from_config_file(attribute, config):
@@ -165,6 +167,14 @@ if __name__=="__main__":
             # directory already exists
             pass
 
+        gfs_data_hour = re.findall(r'\d+', sim_tag)[0]
+        bucket_rfield_home = "{}/wrf/{}/{}/rfield/d03".format(bucket_root, version, gfs_data_hour)
+        try:
+            os.makedirs(bucket_rfield_home)
+        except FileExistsError:
+            # directory already exists
+            pass
+
         mp_pool = mp.Pool(mp.cpu_count())
 
         results = mp_pool.starmap(gen_rfield_d03,
@@ -178,5 +188,8 @@ if __name__=="__main__":
     finally:
         if mp_pool is not None:
             mp_pool.close()
+        os.system("cd {}".format(rfield_home))
+        # tar -czvf ~/Desktop/rfield.tar.gz *
+        os.system("tar -czvf {}/rfield.tar.gz *".format(bucket_rfield_home))
 
 
