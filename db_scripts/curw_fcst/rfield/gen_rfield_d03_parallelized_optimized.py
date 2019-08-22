@@ -175,6 +175,12 @@ if __name__=="__main__":
             # directory already exists
             pass
 
+        # copy file containing xy coordinates to the rfield home
+        try:
+            os.system("cp d03_xy.txt {}/xy.txt".format(rfield_home))
+        except Exception:
+            pass
+
         mp_pool = mp.Pool(mp.cpu_count())
 
         results = mp_pool.starmap(gen_rfield_d03,
