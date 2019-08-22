@@ -2,12 +2,11 @@
 import traceback
 import pymysql
 import json
-import sys
 import getopt
+import sys
 import os
 import multiprocessing as mp
 from datetime import datetime, timedelta
-
 
 # connection params
 HOST = ""
@@ -40,30 +39,33 @@ def write_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
-def create_rfield(connection, wrf_model, version, sim_tag, timestamp):
+def create_rfield(connection, wrf_model, version, sim_tag, timestamp, past_or_future):
     # rfield = [['latitude', 'longitude', 'rainfall']]
     rfield = []
     with connection.cursor() as cursor0:
-        cursor0.callproc('get_d03_rfield', (wrf_model, version, sim_tag, timestamp))
+        cursor0.callproc('get_d03_rfield_kelani_basin_rainfall', (wrf_model, version, sim_tag, timestamp))
         results = cursor0.fetchall()
         for result in results:
             rfield.append('{}'.format(result.get('value')))
 
-    write_to_file('{}/wrf/{}/{}/rfield/d03/{}_{}_{}_rfield.txt'
-                  .format(root_directory, version, sim_tag, wrf_model, version, timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
+    write_to_file('{}/wrf/{}/{}/rfield/kelani_basin/{}/{}_{}_{}_rfield.txt'
+                  .format(root_directory, version, sim_tag, past_or_future, wrf_model, version, timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
 
 
-def gen_rfield_d03(wrf_model, version, sim_tag):
+#############################
+# Raw WRF RFIELD GENERATION #
+#############################
 
-    # remove outdated rfield files
+def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag):
+
+    #         os.system("rm /mnt/disks/wrf_nfs/wrf/{}/rfield/{}/kelani_basin/past/{}_{}_*".format(version, sim_tag, wrf_model, version))
+
+    # remove outdated rfields
     try:
-        os.system("sudo rm {}/wrf/{}/{}/rfield/d03/{}_{}_*".format(root_directory, version, sim_tag, wrf_model, version))
+        os.system("sudo rm {}/wrf/{}/{}/rfield/kelani_basin/past/{}_{}_*".format(root_directory, version, sim_tag, wrf_model, version))
+        os.system("sudo rm {}/wrf/{}/{}/rfield/kelani_basin/future/{}_{}_*".format(root_directory, version, sim_tag, wrf_model, version))
     except Exception as e:
         traceback.print_exc()
-
-    # Connect to the database
-    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
-            cursorclass=pymysql.cursors.DictCursor)
 
     start_time = ''
     end_time = ''
@@ -71,6 +73,10 @@ def gen_rfield_d03(wrf_model, version, sim_tag):
     now = datetime.strptime((datetime.now()+timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d 00:00:00'), '%Y-%m-%d %H:%M:%S')
 
     try:
+        # Connect to the database
+        connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
+                                     cursorclass=pymysql.cursors.DictCursor)
+
         # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
             cursor1.callproc('get_TS_start_end', (wrf_model, version, sim_tag))
@@ -82,12 +88,47 @@ def gen_rfield_d03(wrf_model, version, sim_tag):
             # Extract rfields
             timestamp = start_time
 
-            while timestamp <= end_time:
-                create_rfield(connection=connection, wrf_model=wrf_model, version=version, sim_tag=sim_tag,
-                              timestamp=timestamp)
+            if timestamp < now and timestamp <= end_time:
+                rfield = []
+                with connection.cursor() as cursor1:
+                    cursor1.callproc('get_d03_rfield_kelani_basin_rainfall', (wrf_model, version, sim_tag, timestamp))
+                    results = cursor1.fetchall()
+                    for result in results:
+                        rfield.append(
+                            '{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
+
+                write_to_file('{}/wrf/{}/{}/rfield/kelani_basin/{}/{}_{}_{}_rfield.txt'
+                              .format(root_directory, version, sim_tag, "past", wrf_model, version,
+                                      timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
+            while timestamp < now:
+                create_rfield(connection=connection, wrf_model=wrf_model, version=version, sim_tag=sim_tag,
+                              timestamp=timestamp, past_or_future="past")
+
+                timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
+
+            if timestamp <= end_time:
+                rfield = []
+                with connection.cursor() as cursor1:
+                    cursor1.callproc('get_d03_rfield_kelani_basin_rainfall', (wrf_model, version, sim_tag, timestamp))
+                    results = cursor1.fetchall()
+                    for result in results:
+                        rfield.append(
+                            '{} {} {}'.format(result.get('longitude'), result.get('latitude'), result.get('value')))
+
+                write_to_file('{}/wrf/{}/{}/rfield/kelani_basin/{}/{}_{}_{}_rfield.txt'
+                              .format(root_directory, version, sim_tag, "future", wrf_model, version,
+                                      timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
+
+                timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
+
+            while timestamp <= end_time:
+                create_rfield(connection=connection, wrf_model=wrf_model, version=version, sim_tag=sim_tag,
+                              timestamp=timestamp, past_or_future="future")
+
+                timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
         return True
     except Exception as ex:
         traceback.print_exc()
@@ -99,7 +140,7 @@ def gen_rfield_d03(wrf_model, version, sim_tag):
 
 def usage():
     usageText = """
-    Usage: python gen_rfield_d03_parallelized_optimized_with_past_future.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs"
+    Usage: python gen_rfield_kelani_basin_parallelized_optimized_with_past_future.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs"
 
     -h  --help          Show usage
     -m  --wrf_model     List of WRF models (e.g. WRF_A, WRF_E). Compulsory arg
@@ -111,9 +152,9 @@ def usage():
 
 if __name__=="__main__":
 
-    mp_pool = None
-
+    my_pool = None
     try:
+
         wrf_models = None
         version = None
         sim_tag = None
@@ -135,6 +176,9 @@ if __name__=="__main__":
             elif opt in ("-s", "--sim_tag"):
                 sim_tag = arg.strip()
 
+        print(wrf_models, version, sim_tag)
+        print(VALID_MODELS, VALID_VERSIONS, SIM_TAGS)
+
         # load connection parameters
         config = json.loads(open('/home/uwcc-admin/curw_rfield_extractor/config.json').read())
 
@@ -151,24 +195,35 @@ if __name__=="__main__":
             if wrf_model is None or wrf_model not in VALID_MODELS:
                 usage()
                 exit(1)
+
         if version is None or version not in VALID_VERSIONS:
             usage()
             exit(1)
+
         if sim_tag is None or sim_tag not in SIM_TAGS:
             usage()
             exit(1)
 
-        rfield_home = "{}/wrf/{}/{}/rfield/d03".format(root_directory, version, sim_tag)
+        past_rfield_home = "{}/wrf/{}/{}/rfield/kelani_basin/past".format(root_directory, version, sim_tag)
         try:
-            os.makedirs(rfield_home)
+            os.makedirs(past_rfield_home)
+        except FileExistsError:
+            # directory already exists
+            pass
+
+        future_rfield_home = "{}/wrf/{}/{}/rfield/kelani_basin/future".format(root_directory, version, sim_tag)
+        try:
+            os.makedirs(future_rfield_home)
         except FileExistsError:
             # directory already exists
             pass
 
         mp_pool = mp.Pool(mp.cpu_count())
 
-        results = mp_pool.starmap(gen_rfield_d03,
+        results = mp_pool.starmap(gen_rfield_d03_kelani_basin,
                                         [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list])
+        # results = mp_pool.starmap_async(gen_rfield_d03_kelani_basin,
+        #                           [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list]).get()
 
         print("results: ", results)
 
@@ -176,7 +231,9 @@ if __name__=="__main__":
         print('JSON config data loading error.')
         traceback.print_exc()
     finally:
-        if mp_pool is not None:
+        if my_pool is not None:
             mp_pool.close()
+
+
 
 
