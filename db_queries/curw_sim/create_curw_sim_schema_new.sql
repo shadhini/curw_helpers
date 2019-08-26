@@ -87,6 +87,52 @@ CREATE TABLE `dis_data_min` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+-- tide timeseries
+
+CREATE TABLE `tide_run` (
+    `id` VARCHAR(64) NOT NULL,
+    `latitude` DECIMAL(9 , 6 ) NOT NULL,
+    `longitude` DECIMAL(9 , 6 ) NOT NULL,
+    `model` VARCHAR(25) NOT NULL,
+    `method` VARCHAR(25) NOT NULL,
+    `obs_end` DATETIME DEFAULT NULL,
+    `grid_id` VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `id` (`id`),
+    KEY `idx_tide_run_latitude` (`latitude`),
+    KEY `idx_tide_run_longitude` (`longitude`),
+    KEY `idx_tide_run_model` (`model`),
+    KEY `idx_tide_run_method` (`method`),
+    FULLTEXT KEY `idx_tide_run_grid_id` ( `grid_id` )
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+CREATE TABLE `tide_data` (
+  `id` varchar(64) NOT NULL,
+  `time` datetime NOT NULL,
+  `value` decimal(8,3) NOT NULL,
+  PRIMARY KEY (`id`,`time`),
+  CONSTRAINT `tide_data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `tide_run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `tide_data_max` (
+    `id` VARCHAR(64) NOT NULL,
+    `time` DATETIME NOT NULL,
+    `value` DECIMAL(8 , 3 ) NOT NULL,
+    PRIMARY KEY (`id` , `time`),
+    CONSTRAINT `tide_data_ibfk_3` FOREIGN KEY (`id`)
+        REFERENCES `tide_run` (`id`)
+        ON DELETE CASCADE ON UPDATE CASCADE
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8;
+
+CREATE TABLE `tide_data_min` (
+  `id` varchar(64) NOT NULL,
+  `time` datetime NOT NULL,
+  `value` decimal(8,3) NOT NULL,
+  PRIMARY KEY (`id`,`time`),
+  CONSTRAINT `tide_data_ibfk_2` FOREIGN KEY (`id`) REFERENCES `tide_run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 -- flo2d initial conditions
 
 CREATE TABLE `grid_map_flo2d_initial_cond` (
