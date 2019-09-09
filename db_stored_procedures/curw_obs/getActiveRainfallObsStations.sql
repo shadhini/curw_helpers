@@ -1,4 +1,4 @@
-CREATE DEFINER=`admin`@`%` PROCEDURE `getActiveRainfallObsStations`()
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getActiveRainfallObsStations`()
 BEGIN
 SELECT 
 	selected_runs.id as hash_id,
