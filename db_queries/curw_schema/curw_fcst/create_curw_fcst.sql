@@ -53,3 +53,12 @@ CREATE TABLE `run` (
   CONSTRAINT `run_ibfk_4` FOREIGN KEY (`unit`) REFERENCES `unit` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `data` (
+  `id` varchar(64) NOT NULL,
+  `time` datetime NOT NULL,
+  `fgt` datetime NOT NULL,
+  `value` decimal(8,3) NOT NULL,
+  PRIMARY KEY (`id`,`fgt`,`time`),
+  KEY `ix_data_fgt` (`fgt`),
+  CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
