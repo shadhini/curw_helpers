@@ -1,8 +1,21 @@
 from datetime import timedelta, datetime
 import  traceback
-from csv_utils import read_csv
+import csv
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
+def read_csv(file_name):
+    """
+    Read csv file
+    :param file_name: <file_path/file_name>.csv
+    :return: list of lists which contains each row of the csv file
+    """
+
+    with open(file_name, 'r') as f:
+        data = [list(line) for line in csv.reader(f)][1:]
+
+    return data
 
 
 def write_to_file(file_name, data):
@@ -29,7 +42,7 @@ def format_rain(csv_file, start):
         time_col = ((datetime.strptime(timeseries[i][0], DATE_TIME_FORMAT) - start).total_seconds())/3600
         rain_col = float(timeseries[i][1])/total_rain
 
-        rain_dat.append("R   {}   {}".format('%.4f' % time_col, cumulative_timeseries[i]/total_rain))
+        rain_dat.append("R   {}   {}".format('%.4f' % time_col, '%.4f' % (cumulative_timeseries[i]/total_rain)))
 
     rain_dat.insert(0, "R   0   0")
     rain_dat.insert(0, "{}   5   0   0".format(total_rain))
@@ -38,7 +51,7 @@ def format_rain(csv_file, start):
     write_to_file("RAIN.DAT", rain_dat)
 
 
-# format_rain("6531.csv", datetime.strptime("2019-06-12 23:30:00", DATE_TIME_FORMAT))
+format_rain("ibattara_rainfall_ts.csv", datetime.strptime("2019-09-13 00:05:00", DATE_TIME_FORMAT))
 
 
 def generate_time_values(start, end):
