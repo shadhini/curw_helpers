@@ -92,9 +92,10 @@ def prepare_inflow(inflow_file_path, start, end, discharge_id, wl_id):
 
         inflow.append('0               0')
         inflow.append('C               0            8655')
+        inflow.append('H               0               0')
 
         timeseries = discharge_ts
-        for i in range(len(timeseries)):
+        for i in range(1, len(timeseries)):
             time_col = (str('%.1f' % (((timeseries[i][0] - timeseries[0][0]).total_seconds())/3600))).rjust(16)
             value_col = (str('%.1f' % (timeseries[i][1]))).rjust(16)
             inflow.append('H' + time_col + value_col)
