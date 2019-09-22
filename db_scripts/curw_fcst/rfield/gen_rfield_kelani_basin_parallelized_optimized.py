@@ -185,7 +185,7 @@ if __name__=="__main__":
 
         # copy file containing xy coordinates to the rfield home
         try:
-            os.system("cp kelani_basin_xy.txt {}/xy.txt".format(rfield_home))
+            os.system("cp kelani_basin_xy.csv {}/xy.csv".format(rfield_home))
         except Exception:
             pass
 

@@ -14,6 +14,19 @@ def read_csv(file_name):
     return data
 
 
+def create_csv(file_name, data):
+    """
+    Create new csv file using given data
+    :param file_name: <file_path/file_name>.csv
+    :param data: list of lists
+    e.g. [['Person', 'Age'], ['Peter', '22'], ['Jasmine', '21'], ['Sam', '24']]
+    :return:
+    """
+    with open(file_name, 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerows(data)
+
+
 def write_to_file(file_name, data):
     """
     Write to file (w+, if there's no such file, a file would be created)
@@ -38,7 +51,20 @@ def create_lat_lon_file(filename, csv_file):
     write_to_file(file_name=filename, data=lon_lat_set)
 
 
-create_lat_lon_file("kelani_basin_xy.txt", 'kelani_basin_ex.csv')
+def create_lat_lon_csv_file(filename, csv_file):
 
-create_lat_lon_file("d03_xy.txt", 'd03_ex.csv')
+    csv = read_csv(csv_file)
+    print(csv)
+
+    lon_lat_set = []
+
+    for i in range(len(csv)):
+        lon_lat_set.append([csv[i][0], csv[i][1]])
+
+    create_csv(file_name=filename, data=lon_lat_set)
+
+
+create_lat_lon_csv_file("kelani_basin_xy.csv", 'kelani_basin_ex.csv')
+
+create_lat_lon_csv_file("d03_xy.csv", 'd03_ex.csv')
 
