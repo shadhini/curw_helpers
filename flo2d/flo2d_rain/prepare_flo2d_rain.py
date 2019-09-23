@@ -39,19 +39,19 @@ def format_rain(csv_file, start):
         cumulative_timeseries.append(total_rain)
 
     for i in range(len(timeseries)):
-        time_col = ((datetime.strptime(timeseries[i][0], DATE_TIME_FORMAT) - start).total_seconds())/3600
-        rain_col = float(timeseries[i][1])/total_rain
+        time_col = '%.3f' % (((datetime.strptime(timeseries[i][0], DATE_TIME_FORMAT) - start).total_seconds())/3600)
+        rain_col = '%.3f' % (cumulative_timeseries[i]/total_rain)
 
-        rain_dat.append("R   {}   {}".format('%.4f' % time_col, '%.4f' % (cumulative_timeseries[i]/total_rain)))
+        rain_dat.append("R" + time_col.rjust(8) + rain_col.rjust(8))
 
-    rain_dat.insert(0, "R   0   0")
-    rain_dat.insert(0, "{}   5   0   0".format(total_rain))
-    rain_dat.insert(0, "0   0   ")
+    rain_dat.insert(0, "R       0       0")
+    rain_dat.insert(0, "{}      5       0       0".format('%.3f' % total_rain))
+    rain_dat.insert(0, "0       0        ")
 
     write_to_file("RAIN.DAT", rain_dat)
 
 
-format_rain("ibattara_rainfall_ts.csv", datetime.strptime("2019-09-13 00:05:00", DATE_TIME_FORMAT))
+format_rain("ibattara_rain_2019-09-13_to_2019-09-17.csv", datetime.strptime("2019-09-13 00:05:00", DATE_TIME_FORMAT))
 
 
 def generate_time_values(start, end):
