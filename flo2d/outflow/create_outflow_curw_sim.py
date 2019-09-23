@@ -66,7 +66,7 @@ def check_time_format(time):
         exit(1)
 
 
-def prepare_outflow(outflow_file_path, start, end, tide_id):
+def prepare_outflow_250(outflow_file_path, start, end, tide_id):
 
 
     try:
@@ -105,7 +105,56 @@ def prepare_outflow(outflow_file_path, start, end, tide_id):
 
         write_to_file(outflow_file_path, data=outflow)
 
-        tail_file = open("tail.txt", "r")
+        tail_file = open("tail_250.txt", "r")
+        tail = tail_file.read()
+        tail_file.close()
+
+        append_file_to_file(outflow_file_path, file_content=tail)
+
+    except Exception as e:
+        print(traceback.print_exc())
+    finally:
+        destroy_Pool(curw_sim_pool)
+        print("Outflow generated")
+
+
+def prepare_outflow_150(outflow_file_path, start, end, tide_id):
+
+
+    try:
+
+        curw_sim_pool = get_Pool(host=CURW_SIM_HOST, user=CURW_SIM_USERNAME, password=CURW_SIM_PASSWORD, port=CURW_SIM_PORT,
+                                 db=CURW_SIM_DATABASE)
+
+        TS = TideTS(pool=curw_sim_pool)
+        tide_ts = TS.get_timeseries(id_=tide_id, start_date=start, end_date=end)
+
+        tide_data = []
+        timeseries = tide_ts
+        for i in range(len(timeseries)):
+            time_col = (str('%.3f' % (((timeseries[i][0] - timeseries[0][0]).total_seconds()) / 3600))).rjust(16)
+            value_col = (str('%.3f' % (timeseries[i][1]))).rjust(16)
+            tide_data.append('S' + time_col + value_col)
+
+        outflow = []
+
+        outflow.append('K             290')
+        outflow.append('K             416')
+        outflow.append('K             488')
+        outflow.append('K            1218')
+
+        outflow.append('N             356               1')
+        outflow.extend(tide_data)
+
+        outflow.append('N             497               1')
+        outflow.extend(tide_data)
+
+        outflow.append('N            1330               1')
+        outflow.extend(tide_data)
+
+        write_to_file(outflow_file_path, data=outflow)
+
+        tail_file = open("tail_150.txt", "r")
         tail = tail_file.read()
         tail_file.close()
 
@@ -132,9 +181,10 @@ def create_dir_if_not_exists(path):
 
 def usage():
     usageText = """
-    Usage: .\gen_outflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
+    Usage: .\gen_outflow.py [-m flo2d_XXX] [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
 
     -h  --help          Show usage
+    -m  --model         FLO2D model (e.g. flo2d_250, flo2d_150). Default is flo2d_250.
     -s  --start_time    Outflow start time (e.g: "2019-06-05 00:00:00"). Default is 00:00:00, 2 days before today.
     -e  --end_time      Outflow end time (e.g: "2019-06-05 23:00:00"). Default is 00:00:00, tomorrow.
     """
@@ -148,10 +198,11 @@ if __name__ == "__main__":
         print("started creating outflow")
         start_time = None
         end_time = None
+        flo2d_model = None
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:s:e:",
-                                       ["help", "start_time=", "end_time="])
+            opts, args = getopt.getopt(sys.argv[1:], "h:m:s:e:",
+                                       ["help", "flo2d_model=", "start_time=", "end_time="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -159,6 +210,8 @@ if __name__ == "__main__":
             if opt in ("-h", "--help"):
                 usage()
                 sys.exit()
+            elif opt in ("-m", "--flo2d_model"):
+                flo2d_model = arg.strip()
             elif opt in ("-s", "--start_time"):
                 start_time = arg.strip()
             elif opt in ("-e", "--end_time"):
@@ -171,6 +224,12 @@ if __name__ == "__main__":
         file_name = read_attribute_from_config_file('output_file_name', config)
 
         tide_id = read_attribute_from_config_file('tide_id', config, True)
+
+        if flo2d_model is None:
+            flo2d_model = "flo2d_250"
+        elif flo2d_model not in ("flo2d_250", "flo2d_150"):
+            print("Flo2d model should be either \"flo2d_250\" or \"flo2d_150\"")
+            exit(1)
 
         if start_time is None:
             start_time = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
@@ -186,11 +245,14 @@ if __name__ == "__main__":
             outflow_file_path = os.path.join(output_dir, file_name)
         else:
             outflow_file_path = os.path.join(r"D:\outflow",
-                                          '{}_{}_{}.DAT'.format(file_name, start_time, end_time).replace(' ', '_').replace(':', '-'))
+                                          '{}_{}_{}_{}.DAT'.format(file_name, flo2d_model, start_time, end_time).replace(' ', '_').replace(':', '-'))
 
         if not os.path.isfile(outflow_file_path):
             print("{} start preparing outflow".format(datetime.now()))
-            prepare_outflow(outflow_file_path, start=start_time, end=end_time, tide_id=tide_id)
+            if flo2d_model == "flo2d_250":
+                prepare_outflow_250(outflow_file_path, start=start_time, end=end_time, tide_id=tide_id)
+            elif flo2d_model == "flo2d_150":
+                prepare_outflow_150(outflow_file_path, start=start_time, end=end_time, tide_id=tide_id)
             print("{} completed preparing outflow".format(datetime.now()))
         else:
             print('Outflow file already in path : ', outflow_file_path)
