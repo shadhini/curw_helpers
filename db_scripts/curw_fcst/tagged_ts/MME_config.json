@@ -1,3 +1,40 @@
 {
-  "model_list": [["WRF_SE","v4"]]
+  "wrf_regions": [
+    {
+      "lat_min": 6.7,
+      "lat_max": 8.9,
+      "lon_min": 76.9,
+      "lon_max": 82.6,
+      "variables":[
+        {"x": ["WRF_A", "4.0"]},
+        {"y": ["WRF_C", "4.0"]},
+        {"z": ["WRF_E", "4.0"]}
+        ],
+      "equation": "3x-0.5y*z"
+    },
+    {
+      "lat_min": 6.7,
+      "lat_max": 8.9,
+      "lon_min": 76.9,
+      "lon_max": 82.6,
+      "variables":[
+        {"x": ["WRF_A", "4.0"]},
+        {"y": ["WRF_C", "4.0"]},
+        {"z": ["WRF_E", "4.0"]}
+        ],
+      "equation": "3x-0.5y*z"
+    },
+    {
+      "lat_min": 6.7,
+      "lat_max": 8.9,
+      "lon_min": 76.9,
+      "lon_max": 82.6,
+      "variables":[
+        {"x": ["WRF_A", "4.0"]},
+        {"y": ["WRF_C", "4.0"]},
+        {"z": ["WRF_E", "4.0"]}
+        ],
+      "equation": "3x-0.5y*z"
+    }
+  ]
 }
