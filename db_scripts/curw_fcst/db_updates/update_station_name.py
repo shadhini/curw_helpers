@@ -5,8 +5,8 @@ import pymysql
 def update_wrf_station_names():
     # Connect to the database
     connection = pymysql.connect(host='35.230.102.148',
-            user='root',
-            password='cfcwm07',
+            user='',
+            password='',
             db='curw_fcst',
             cursorclass=pymysql.cursors.DictCursor)
 

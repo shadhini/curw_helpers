@@ -11,8 +11,8 @@ def extract_wrf0_stations_curw():
     """
     # Connect to the database
     connection = pymysql.connect(host='104.198.0.87',
-            user='root',
-            password='cfcwm07',
+            user='',
+            password='',
             db='curw',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor)

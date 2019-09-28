@@ -13,8 +13,8 @@ def extract_active_rainfall_obs_stations():
     """
     # Connect to the database
     connection = pymysql.connect(host='104.198.0.87',
-            user='root',
-            password='cfcwm07',
+            user='',
+            password='',
             db='curw',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor)
@@ -68,8 +68,8 @@ def extract_active_curw_obs_rainfall_stations():
         """
     # Connect to the database
     connection = pymysql.connect(host='104.198.0.87',
-            user='root',
-            password='cfcwm07',
+            user='',
+            password='',
             db='curw',
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor)

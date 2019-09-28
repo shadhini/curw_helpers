@@ -23,8 +23,8 @@ OBS_DB ="curw_sim"
 OBS_PORT = 3306
 
 TEMP_HOST = "104.198.0.87"
-TEMP_USER = "root"
-TEMP_PASSWORD = "cfcwm07"
+TEMP_USER = ""
+TEMP_PASSWORD = ""
 TEMP_DB ="curw"
 TEMP_PORT = 3306
 

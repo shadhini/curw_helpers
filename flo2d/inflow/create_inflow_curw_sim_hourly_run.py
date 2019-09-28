@@ -131,7 +131,7 @@ def create_inflow(dir_path, ts_start_date, ts_end_date):
     try:
 
         # Load config details and db connection params
-        config_path = os.path.join(os.getcwd(), 'inflowdat', 'config.json')
+        config_path = os.path.join(os.getcwd(), 'inflowdat', 'db_config.json')
         config = json.loads(open(config_path).read())
 
         output_dir = dir_path
