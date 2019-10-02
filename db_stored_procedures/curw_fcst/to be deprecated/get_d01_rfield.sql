@@ -1,3 +1,4 @@
+-- to be deprecated
 CREATE DEFINER=`root`@`%` PROCEDURE `get_d01_rfield`(
 IN model VARCHAR(25),
 IN version VARCHAR(25),

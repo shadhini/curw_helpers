@@ -1,3 +1,4 @@
+-- to be deprecated
 CREATE DEFINER=`root`@`%` PROCEDURE `get_d03_rfield_kelani_basin_ids`(
 IN model VARCHAR(25),
 IN version VARCHAR(25)
