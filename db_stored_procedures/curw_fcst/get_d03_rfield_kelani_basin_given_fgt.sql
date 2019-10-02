@@ -2,7 +2,7 @@ CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_d03_rfield_kelani_basin_given_f
 IN model VARCHAR(25),
 IN version VARCHAR(25),
 IN sim_tag VARCHAR(100),
-IN fgt VARCHAR(25),
+IN fgt DATETIME,
 IN time DATETIME
 )
 BEGIN
@@ -36,7 +36,7 @@ FROM
             AND curw_fcst.run.source = @sourceID) AS run_selcted ON curw_fcst.run_selcted.station_id = curw_fcst.station_selected.id
         LEFT JOIN
     curw_fcst.data ON curw_fcst.run_selcted.run_id = curw_fcst.data.id
-        AND curw_fcst.data.fgt LIKE fgt
+        AND curw_fcst.data.fgt = fgt
         AND curw_fcst.data.time = time
 ORDER BY curw_fcst.station_selected.longitude , curw_fcst.station_selected.latitude;
 END
