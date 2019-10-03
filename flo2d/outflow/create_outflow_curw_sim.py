@@ -149,6 +149,9 @@ def prepare_outflow_150(outflow_file_path, start, end, tide_id):
         outflow.append('N             497               1')
         outflow.extend(tide_data)
 
+        outflow.append('N             568               1')
+        outflow.extend(tide_data)
+
         outflow.append('N            1330               1')
         outflow.extend(tide_data)
 
