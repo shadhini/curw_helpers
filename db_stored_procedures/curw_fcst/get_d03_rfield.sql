@@ -6,10 +6,10 @@ IN time DATETIME
 )
 BEGIN
 SET @sourceID = (SELECT curw_fcst.source.id FROM curw_fcst.source WHERE curw_fcst.source.model = model and curw_fcst.source.version = version);
-SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID limit 1);
+SET @fgt = (SELECT curw_fcst.run.end_date FROM curw_fcst.run WHERE curw_fcst.run.source = @sourceID and curw_fcst.run.sim_tag = sim_tag limit 1);
 
 SELECT 
-	curw_fcst.station_selected.longitude,
+    curw_fcst.station_selected.longitude,
     curw_fcst.station_selected.latitude,
     curw_fcst.data.value
 FROM
