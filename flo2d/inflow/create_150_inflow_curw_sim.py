@@ -61,29 +61,12 @@ def check_time_format(time):
         exit(1)
 
 
-def prepare_inflow(inflow_file_path, start, end, discharge_id, wl_id):
-
-    obs_wl = None
+def prepare_inflow_150(inflow_file_path, start, end, discharge_id):
 
     try:
 
         curw_sim_pool = get_Pool(host=CURW_SIM_HOST, user=CURW_SIM_USERNAME, password=CURW_SIM_PASSWORD, port=CURW_SIM_PORT,
                                  db=CURW_SIM_DATABASE)
-
-        curw_obs_pool = get_Pool(host=CURW_OBS_HOST, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD, port=CURW_OBS_PORT,
-                                 db=CURW_OBS_DATABASE)
-
-        connection = curw_obs_pool.connection()
-
-        # Extract waterlevel
-        with connection.cursor() as cursor1:
-            obs_end = datetime.strptime(start, COMMON_DATE_TIME_FORMAT) + timedelta(hours=10)
-            cursor1.callproc('getWL', (wl_id, start, obs_end))
-            result = cursor1.fetchone()
-            obs_wl = result.get('value')
-
-        if obs_wl is None:
-            obs_wl = 0.5
 
         # Extract discharge series
         TS = DisTS(pool=curw_sim_pool)
@@ -91,8 +74,8 @@ def prepare_inflow(inflow_file_path, start, end, discharge_id, wl_id):
 
         inflow = []
 
-        inflow.append('0               0')
-        inflow.append('C               0            8655')
+        inflow.append('0           41550')
+        inflow.append('C               0           41550')
         inflow.append('H               0               0')
 
         timeseries = discharge_ts
@@ -101,16 +84,11 @@ def prepare_inflow(inflow_file_path, start, end, discharge_id, wl_id):
             value_col = (str('%.1f' % (timeseries[i][1]))).rjust(16)
             inflow.append('H' + time_col + value_col)
 
-        inflow.append('R            2265{}'.format((str(obs_wl)).rjust(16)))
-        inflow.append('R            3559             6.6')
-
         write_to_file(inflow_file_path, data=inflow)
 
     except Exception as e:
         print(traceback.print_exc())
     finally:
-        connection.close()
-        destroy_Pool(curw_obs_pool)
         destroy_Pool(curw_sim_pool)
         print("Inflow generated")
 
@@ -129,7 +107,7 @@ def create_dir_if_not_exists(path):
 
 def usage():
     usageText = """
-    Usage: .\gen_inflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
+    Usage: .\gen_150_inflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
 
     -h  --help          Show usage
     -s  --start_time    Inflow start time (e.g: "2019-06-05 00:00:00"). Default is 00:00:00, 2 days before today.
@@ -165,13 +143,12 @@ if __name__ == "__main__":
         # os.system(r"venv\Scripts\activate")
 
         # Load config details and db connection params
-        config = json.loads(open('config.json').read())
+        config = json.loads(open('config_150.json').read())
 
         output_dir = read_attribute_from_config_file('output_dir', config)
         file_name = read_attribute_from_config_file('output_file_name', config)
 
         discharge_id = read_attribute_from_config_file('discharge_id', config, True)
-        wl_id = read_attribute_from_config_file('wl_id', config, True)
 
         if start_time is None:
             start_time = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
@@ -187,11 +164,11 @@ if __name__ == "__main__":
             inflow_file_path = os.path.join(output_dir, file_name)
         else:
             inflow_file_path = os.path.join(r"D:\inflow",
-                                          '{}_{}_{}.DAT'.format(file_name, start_time, end_time).replace(' ', '_').replace(':', '-'))
+                                          '150_{}_{}_{}.DAT'.format(file_name, start_time, end_time).replace(' ', '_').replace(':', '-'))
 
         if not os.path.isfile(inflow_file_path):
             print("{} start preparing inflow".format(datetime.now()))
-            prepare_inflow(inflow_file_path, start=start_time, end=end_time, discharge_id=discharge_id, wl_id=wl_id)
+            prepare_inflow_150(inflow_file_path, start=start_time, end=end_time, discharge_id=discharge_id)
             print("{} completed preparing inflow".format(datetime.now()))
         else:
             print('Inflow file already in path : ', inflow_file_path)
