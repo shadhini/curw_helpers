@@ -126,28 +126,76 @@ def create_dir_if_not_exists(path):
     return path
 
 
-def create_inflow(dir_path, ts_start_date, ts_end_date):
+def usage():
+    usageText = """
+    Usage: .\gen_inflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
+
+    -h  --help          Show usage
+    -s  --start_time    Inflow start time (e.g: "2019-06-05 00:00:00"). Default is 00:00:00, 2 days before today.
+    -e  --end_time      Inflow end time (e.g: "2019-06-05 23:00:00"). Default is 00:00:00, tomorrow.
+    """
+    print(usageText)
+
+
+if __name__ == "__main__":
 
     try:
 
-        # Load config details and db connection params
-        config_path = os.path.join(os.getcwd(), 'inflowdat', 'db_config.json')
-        config = json.loads(open(config_path).read())
+        print("started creating inflow")
+        start_time = None
+        end_time = None
 
-        output_dir = dir_path
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "h:s:e:",
+                                       ["help", "start_time=", "end_time="])
+        except getopt.GetoptError:
+            usage()
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ("-h", "--help"):
+                usage()
+                sys.exit()
+            elif opt in ("-s", "--start_time"):
+                start_time = arg.strip()
+            elif opt in ("-e", "--end_time"):
+                end_time = arg.strip()
+
+        # os.chdir(r"D:\inflow")
+        # os.system(r"venv\Scripts\activate")
+
+        # Load config details and db connection params
+        config = json.loads(open('config.json').read())
+
+        output_dir = read_attribute_from_config_file('output_dir', config)
         file_name = read_attribute_from_config_file('output_file_name', config)
 
         discharge_id = read_attribute_from_config_file('discharge_id', config, True)
         wl_id = read_attribute_from_config_file('wl_id', config, True)
 
-        start_time = ts_start_date
-        end_time = ts_end_date
+        if start_time is None:
+            start_time = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d 00:00:00')
+        else:
+            check_time_format(time=start_time)
 
-        inflow_file_path = os.path.join(output_dir, file_name)
+        if end_time is None:
+            end_time = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')
+        else:
+            check_time_format(time=end_time)
 
-        print("{} start preparing inflow".format(datetime.now()))
-        prepare_inflow(inflow_file_path, start=start_time, end=end_time, discharge_id=discharge_id, wl_id=wl_id)
-        print("{} completed preparing inflow".format(datetime.now()))
+        if output_dir is not None and file_name is not None:
+            inflow_file_path = os.path.join(output_dir, file_name)
+        else:
+            inflow_file_path = os.path.join(r"D:\inflow",
+                                          '{}_{}_{}.DAT'.format(file_name, start_time, end_time).replace(' ', '_').replace(':', '-'))
+
+        if not os.path.isfile(inflow_file_path):
+            print("{} start preparing inflow".format(datetime.now()))
+            prepare_inflow(inflow_file_path, start=start_time, end=end_time, discharge_id=discharge_id, wl_id=wl_id)
+            print("{} completed preparing inflow".format(datetime.now()))
+        else:
+            print('Inflow file already in path : ', inflow_file_path)
+
+        # os.system(r"deactivate")
 
     except Exception:
         traceback.print_exc()
