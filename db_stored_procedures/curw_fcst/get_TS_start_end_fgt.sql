@@ -1,4 +1,4 @@
-CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_wrf_TS_start_end_fgt`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `get_TS_start_end_fgt`(
 IN model VARCHAR(25),
 IN version VARCHAR(25),
 IN sim_tag VARCHAR(100),
@@ -11,7 +11,7 @@ SET @random_id = (SELECT curw_fcst.run.id FROM curw_fcst.run WHERE curw_fcst.run
 SELECT 
     MIN(curw_fcst.data.time) AS start,
     MAX(curw_fcst.data.time) AS end,
-    MIN(curw_fcst.data.fgt) AS fgt
+    MAX(curw_fcst.data.fgt) AS fgt
 FROM
     curw_fcst.data
 WHERE
