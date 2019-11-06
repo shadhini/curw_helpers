@@ -129,7 +129,7 @@ def create_dir_if_not_exists(path):
 
 def usage():
     usageText = """
-    Usage: .\gen_inflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
+    Usage: .\gen_250_inflow.py [-s "YYYY-MM-DD HH:MM:SS"] [-e "YYYY-MM-DD HH:MM:SS"]
 
     -h  --help          Show usage
     -s  --start_time    Inflow start time (e.g: "2019-06-05 00:00:00"). Default is 00:00:00, 2 days before today.

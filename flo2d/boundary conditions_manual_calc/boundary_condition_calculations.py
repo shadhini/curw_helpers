@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     try:
 
-        ranwala_ts_file_path = "ranwala_wl_06-04_to_06-15.csv"
+        ranwala_ts_file_path = "ranwala_wl 09-16to09-25.csv"
 
         hanwella_ts = calculate_hanwella_wl_from_ranwala_wl(ranwala_ts=read_csv(ranwala_ts_file_path))
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         discharge_ts = calculate_hanwella_discharge_from_hanwella_wl(hanwella_ts)
 
         if discharge_ts is not None and len(discharge_ts) > 0:
-            create_csv(file_name='hanwella_estimated_dis_06-04_to_06-15.csv', data=discharge_ts)
+            create_csv(file_name='hanwella_estimated_dis_09-16_to_09-25.csv', data=discharge_ts)
 
     except Exception as e:
         traceback.print_exc()
