@@ -1,3 +1,4 @@
+#!"D:\raincells\venv\Scripts\python.exe"
 import pymysql
 import getopt
 from datetime import datetime, timedelta
@@ -6,14 +7,7 @@ import os
 import sys
 
 DATE_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-# connection params
-HOST = "10.138.0.13"
-USER = "routine_user"
-PASSWORD = "aquaroutine"
-DB ="curw_sim"
-PORT = 3306
-
+from db_adapter.constants import CURW_SIM_DATABASE, CURW_SIM_PASSWORD, CURW_SIM_USERNAME, CURW_SIM_PORT, CURW_SIM_HOST
 
 def write_to_file(file_name, data):
     with open(file_name, 'w+') as f:
@@ -58,7 +52,7 @@ def prepare_raincell(raincell_file_path, start_time, end_time,
     :param interpolation_method: value interpolation method (e.g. "MME")
     :return:
     """
-    connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, db=DB,
+    connection = pymysql.connect(host=CURW_SIM_HOST, user=CURW_SIM_USERNAME, password=CURW_SIM_PASSWORD, db=CURW_SIM_DATABASE,
             cursorclass=pymysql.cursors.DictCursor)
     print("Connected to database")
 
@@ -166,9 +160,6 @@ if __name__=="__main__":
             elif opt in ("-e", "--end_time"):
                 end_time = arg.strip()
 
-        os.chdir(r"D:\raincells")
-        os.system(r"venv\Scripts\activate")
-
         if flo2d_model is None:
             flo2d_model = "flo2d_250"
         elif flo2d_model not in ("flo2d_250", "flo2d_150"):
@@ -198,7 +189,6 @@ if __name__=="__main__":
         else:
             print('Raincell file already in path : ', raincell_file_path)
 
-        # os.system(r"deactivate")
 
     except Exception:
         traceback.print_exc()
