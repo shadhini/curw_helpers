@@ -1,6 +1,19 @@
 import csv
 
 
+def read_file(file_name):
+    """
+    Read content from a file
+    :param file_name: file_path/file_name
+    :return: return the whole content of the file
+    """
+
+    with open(file_name, 'r') as f:
+        content = f.read()
+
+    return content
+
+
 def read_file_line_by_line(file_name):
     """
     Read file content line by line
@@ -27,6 +40,18 @@ def write_to_file(file_name, data):
     :return:
     """
     with open(file_name, 'w+') as f:
+        f.write(data)
+
+
+def append_to_file(file_name, data):
+
+    """
+    Append to file (a+, if there's no such file, a file would be created)
+    :param file_name: file_path/file_name
+    :param data:
+    :return:
+    """
+    with open(file_name, 'a+') as f:
         f.write('\n'.join(data))
 
 
@@ -43,7 +68,13 @@ def read_csv(file_name):
     return data
 
 
-def gen_new_chanbank():
+def gen_new_infil():
+
+    old_infil_head = read_file('resources/infil/INFIL_head.DAT')
+
+    write_to_file('NEW_INFIL.DAT', old_infil_head)
+
+    new_infil = ['']
 
     grid_mapping = read_csv('old_new_flo2d_150_grid_id_map.csv')
 
@@ -52,31 +83,20 @@ def gen_new_chanbank():
     for line in grid_mapping:
         grid_map_dict[line[0]] = line[1]
 
-    old_chanbank = read_file_line_by_line('resources/chanbank/OLD_CHANBANK.DAT')
+    old_infil_tail = read_file_line_by_line('resources/infil/INFIL_tail.DAT')
 
-    new_chanbank = []
-
-    for line in old_chanbank:
+    for line in old_infil_tail:
         line_parts = line.split()
 
-        if line_parts[0] == '0':
-            first_col = line_parts[0].rjust(8)
-        else:
-            first_col = (grid_map_dict.get(line_parts[0])).rjust(8)
+        new_infil_line = '{}{}'.format(line_parts[0], (grid_map_dict.get(line_parts[1])).rjust(8))
+        for i in range(len(line_parts) - 2):
+            new_infil_line += '{}'.format(line_parts[i + 2].rjust(12))
+        new_infil.append(new_infil_line)
 
-        if line_parts[1] == '0':
-            second_col = line_parts[1].rjust(16)
-        else:
-            second_col = (grid_map_dict.get(line_parts[1])).rjust(16)
-
-        new_chanbank.append('{}{}'.format(first_col, second_col))
-
-    new_chanbank.append('')
-
-    write_to_file('NEW_CHANBANK.DAT', new_chanbank)
+    append_to_file('NEW_INFIL.DAT', new_infil)
 
 
-gen_new_chanbank()
+gen_new_infil()
 
 
 
