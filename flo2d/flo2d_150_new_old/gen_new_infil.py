@@ -78,7 +78,7 @@ def gen_new_infil():
 
     grid_mapping = read_csv('old_new_flo2d_150_grid_id_map.csv')
 
-    grid_map_dict = {}
+    grid_map_dict = {}  # [old_id, new_id]
 
     for line in grid_mapping:
         grid_map_dict[line[0]] = line[1]
