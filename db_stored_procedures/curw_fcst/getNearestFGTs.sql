@@ -1,12 +1,12 @@
-CREATE DEFINER=`root`@`%` PROCEDURE `getNearestFGTs`(
+CREATE DEFINER=`routine_user`@`%` PROCEDURE `getNearestFGTs`(
 IN id VARCHAR(64),
 IN time DATETIME
 )
 BEGIN
 	SELECT
-	fgt,
-    abs(fgt-time) as gap
+	temp.fgt,
+    abs(time - temp.fgt) as gap
 	FROM 
-    (select distinct fgt from data where id=id) as temp
+    (select distinct curw_fcst.data.fgt as fgt from curw_fcst.data where curw_fcst.data.id=id) as temp
     order by gap limit 10;
 END
