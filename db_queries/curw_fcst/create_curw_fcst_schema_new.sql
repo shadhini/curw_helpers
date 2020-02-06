@@ -62,3 +62,13 @@ CREATE TABLE `data` (
   KEY `ix_data_fgt` (`fgt`),
   CONSTRAINT `data_ibfk_1` FOREIGN KEY (`id`) REFERENCES `run` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `run_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` int(11) NOT NULL,
+  `sim_tag` varchar(100) NOT NULL,
+  `run_time` datetime DEFAULT NULL,
+  `fgt` datetime DEFAULT NULL,
+  `metadata` json DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
