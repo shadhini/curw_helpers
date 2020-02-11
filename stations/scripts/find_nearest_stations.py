@@ -7,8 +7,70 @@ import collections
 from math import acos, cos, sin, radians
 
 
-from csv_utils import read_csv, create_csv, append_csv
+# from csv_utils import read_csv, create_csv, append_csv
+def create_csv(file_name, data):
+    """
+    Create new csv file using given data
+    :param file_name: <file_path/file_name>.csv
+    :param data: list of lists
+    e.g. [['Person', 'Age'], ['Peter', '22'], ['Jasmine', '21'], ['Sam', '24']]
+    :return:
+    """
+    with open(file_name, 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerows(data)
 
+
+def append_csv(file_name, row):
+    """
+    Append existing csv file using given data
+    :param file_name: <file_path/file_name>.csv
+    :param row: list of row data
+    e.g. ['Jasmine', '21']
+    :return:
+    """
+    with open(file_name, 'a') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerow(row)
+
+
+def read_csv(file_name):
+    """
+    Read csv file
+    :param file_name: <file_path/file_name>.csv
+    :return: list of lists which contains each row of the csv file
+    """
+
+    with open(file_name, 'r') as f:
+        data = [list(line) for line in csv.reader(f)][1:]
+
+    return data
+
+
+def delete_row(file_name, match_index, match_string):
+    """
+    Delete a row from csv file
+    :param file_name: <file_path/file_name>.
+    :param match_string: value of the field that need to be checked
+    :param match_index: index of the field
+    :return: update an existing csv file
+    """
+
+    with open(file_name, 'r') as f:
+        data = [list(line) for line in csv.reader(f)]
+    f.close()
+
+    update_data = []
+
+    for i in range(len(data)):
+        if data[i][match_index] != match_string:
+            update_data.append(data[i])
+
+    with open(file_name, 'w') as csvFile:
+        writer = csv.writer(csvFile)
+        writer.writerows(update_data)
+
+    csvFile.close()
 
 obs_station_names = ['curw_kitulgala','curw_hingurana','curw_orugodawatta','curw_mahapallegama','curw_jaffna',
                      'curw_uduwawala','curw_kottawa_dharmapala_north','curw_IBATTARA2','curw_waga','curw_ambewela',
@@ -199,4 +261,45 @@ def find_nearest_d03_station_for_obs_grids(obs_stations_csv, d03_stations_csv):
     create_csv('MDPA_obs_d03_stations_mapping.csv', nearest_d03_stations_list)
 
 
-find_nearest_d03_station_for_obs_grids('curw_active_rainfall_obs_stations.csv', 'd03_stations.csv')
+def find_nearest_flo2d_grid_id_for_given_lat_lon(flo2d_stations_csv, LAT, LON):
+
+    flo2d_stations = read_csv(flo2d_stations_csv)
+
+    distance_dict = {}
+
+    origin_lat = LAT
+    origin_lng = LON
+
+    for gird_index in range(len(flo2d_stations)):
+        grid_id = flo2d_stations[gird_index][0]
+        lat = float(flo2d_stations[gird_index][2])
+        lng = float(flo2d_stations[gird_index][1])
+
+        intermediate_value = cos(radians(origin_lat)) * cos(radians(lat)) * cos(
+                radians(lng) - radians(origin_lng)) + sin(radians(origin_lat)) * sin(radians(lat))
+        if intermediate_value < 1:
+            distance = 6371 * acos(intermediate_value)
+        else:
+            distance = 6371 * acos(1)
+
+        distance_dict[grid_id] = distance
+
+    sorted_distances = collections.OrderedDict(sorted(distance_dict.items(), key=operator.itemgetter(1))[:10])
+
+    print(sorted_distances)
+
+
+# find_nearest_d03_station_for_obs_grids('curw_active_rainfall_obs_stations.csv', 'd03_stations.csv')
+
+# Mattakkuliya Bridge 2
+print('Mattakkuliya Bridge 2', ':::', 'flo2d 250')
+find_nearest_flo2d_grid_id_for_given_lat_lon('flo2d_250m_dd.csv', 6.980880, 79.875168)
+print('Mattakkuliya Bridge 2', ':::', 'flo2d 150')
+find_nearest_flo2d_grid_id_for_given_lat_lon('flo2d_150m.csv', 6.980880, 79.875168)
+
+
+# Kaduwela Bridge
+print('Kaduwela Bridge', ':::', 'flo2d 250')
+find_nearest_flo2d_grid_id_for_given_lat_lon('flo2d_250m_dd.csv', 6.936431, 79.985192)
+print('Kaduwela Bridge', ':::', 'flo2d 150')
+find_nearest_flo2d_grid_id_for_given_lat_lon('flo2d_150m.csv', 6.936431, 79.985192)
