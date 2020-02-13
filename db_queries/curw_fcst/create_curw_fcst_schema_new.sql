@@ -64,11 +64,12 @@ CREATE TABLE `data` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `run_info` (
-  `source` int(11) NOT NULL,
   `sim_tag` varchar(100) NOT NULL,
+  `source` int(11) NOT NULL,
   `variable` int(11) NOT NULL,
   `fgt` datetime NOT NULL,
   `metadata` json DEFAULT NULL,
-  PRIMARY KEY (`source`,`sim_tag`,`variable`,`fgt`)
+  PRIMARY KEY (`sim_tag`,`source`,`variable`,`fgt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
