@@ -182,8 +182,9 @@ CREATE TABLE `grid_map_flo2d_initial_cond` (
   `grid_id` varchar(255) NOT NULL,
   `up_strm` int(11) NOT NULL,
   `down_strm` int(11) NOT NULL,
-  `canal_seg` varchar(255) NOT NULL,
+  `canal_seg` varchar(2000) NOT NULL,
   `obs_wl` int(11) NOT NULL,
+  `obs_wl_down_strm` int(11) DEFAULT NULL,
   PRIMARY KEY (`grid_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
