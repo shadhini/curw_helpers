@@ -20,7 +20,8 @@ FROM
 			curw_obs.station ON curw_obs.station.id = precipitation.station
 			WHERE curw_obs.station.station_type = 'CUrW_WeatherStation') AS selected_stations
 		LEFT JOIN
-			curw_obs.data ON selected_stations.id = curw_obs.data.id
-			WHERE curw_obs.data.time >= start_time
-            AND curw_obs.data.time <= start_time;
+			(SELECT distinct id FROM curw_obs.data
+            WHERE curw_obs.data.time >= start_time
+            AND curw_obs.data.time <= end_time) AS present_data
+			ON selected_stations.id = present_data.id;
 END
