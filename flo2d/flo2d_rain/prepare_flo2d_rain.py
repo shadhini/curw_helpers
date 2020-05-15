@@ -75,4 +75,6 @@ def generate_time_values(start, end):
     write_to_file("times.DAT", times)
 
 
+format_rain(csv_file="/home/shadhini/dev/repos/shadhini/curw_helpers/flo2d/flo2d_rain/ibattara_rainfall_ts.csv",
+            start=datetime.strptime("2019-09-13 00:05:00", DATE_TIME_FORMAT))
 # generate_time_values(start="2019-06-01 00:00:00", end="2019-06-20 00:00:00")
