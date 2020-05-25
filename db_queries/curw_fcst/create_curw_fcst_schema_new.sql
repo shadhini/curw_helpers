@@ -72,4 +72,15 @@ CREATE TABLE `run_info` (
   PRIMARY KEY (`sim_tag`,`source`,`variable`,`fgt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `wl_alert` (
+  `hash_id` varchar(64) NOT NULL,
+  `time` datetime NOT NULL,
+  `water_level` decimal(8,3) DEFAULT NULL,
+  `model` varchar(25) DEFAULT NULL,
+  `model_version` varchar(25) DEFAULT NULL,
+  `sim_tag` varchar(100) DEFAULT NULL,
+  `last_run` datetime DEFAULT NULL,
+  `station_name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`hash_id`,`time`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
